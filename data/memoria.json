@@ -1,4 +1,103 @@
 {
-  "analisis": [],
+  "analisis": [
+    {
+      "id": "73a6b2a3-ca5f-4cba-9d12-e639f49697f9",
+      "fecha": "2026-08-25T02:16:11.559Z",
+      "datos_hasta": "2026-08-23",
+      "pregunta": null,
+      "modelo": "claude-opus-5",
+      "costo_usd": 0.5309555,
+      "duracion_ms": 197782,
+      "resultado": {
+        "titular": "El ciclo C va a $13.45: tercera corrida de la misma imagen y el CTR se partió a la mitad",
+        "estado": "alerta",
+        "resumen": "El único ciclo activo (UAEH-C3) lleva 16 conversaciones a $13.45, por encima del umbral de $12 y 3.4 veces peor que el arranque del ciclo A. La causa más probable no es la subasta ni la saturación de este ciclo, sino que la misma publicación lleva tres corridas seguidas desde el 11 de agosto: el CPM sigue en ~$21 pero el CTR pasó de 1.17% a 0.48%. Hay un atenuante real que no se puede ignorar: el ciclo C arrancó sábado y domingo, y todavía no ha visto un día entre semana.",
+        "cambios": null,
+        "hallazgos": [
+          {
+            "titulo": "El anuncio no está caro, está siendo ignorado",
+            "texto": "Cuando sube el costo por conversación hay dos culpables posibles: que la impresión se encareció (CPM) o que la gente dejó de hacer clic (CTR). En el ciclo C es lo segundo, y con claridad. El CPM del ciclo C está en $21.87 y $20.97, prácticamente igual al del ciclo A (~$19). Lo que se derrumbó es el CTR de enlace: 0.48–0.50% contra 1.17% y 0.91% en los dos primeros días del ciclo A. Misma gente, mismo precio por mostrarle el anuncio, la mitad de clics. Eso es fatiga de creativo, y encaja con que UAEH-C1, C2 y C3 comparten nombre de campaña, es decir la misma publicación reciclada tres veces. El checklist ya dice 'imagen nueva, no sólo texto nuevo' y el aprendizaje 2 ya lo explicaba; los datos del ciclo C son la factura de no haberlo hecho.",
+            "evidencia": "CTR ciclo A día 1–2: 1.17% y 0.91%. CTR ciclo C día 1–2: 0.50% y 0.48% (-59%). CPM derivado (gasto ÷ alcance×frecuencia ×1000): ciclo A 18.66 / 18.89 / 21.23 / 17.78 / 19.28; ciclo C 21.87 / 20.97. CTR de campaña completa: C1 0.78% → C3 0.48%.",
+            "confianza": "alta"
+          },
+          {
+            "titulo": "El ciclo C arrancó sábado y domingo: la comparación contra A y B está sesgada",
+            "texto": "El 22 y 23 de agosto fueron sábado y domingo. El ciclo A arrancó martes y el ciclo B arrancó lunes. O sea que estás comparando los dos peores días de la semana contra los dos mejores, y encima son los únicos dos días del ciclo C que existen. En UAEH los tres únicos días de fin de semana con datos son los tres más caros del historial ($45.32, $15.22, $12.86), mientras que todos los días por debajo de $9 son de lunes a viernes. Esto no salva al ciclo C —$12.86 en domingo sigue siendo malo—, pero sí significa que aún no hay un dato limpio de este creativo. El dato del lunes 24 llega mañana y es el que decide. Ojo: dentro del ciclo C la frecuencia va en 1.47 acumulada, lejos del 1.9 de agotamiento, así que el desgaste no viene de este ciclo sino de los dos anteriores.",
+            "evidencia": "Calendario: 11-ago martes (C1 d1), 17-ago lunes (C2 d1), 22-ago sábado (C3 d1), 23-ago domingo (C3 d2). Días UAEH bajo $9: 11, 12, 13, 14, 18, 19, 20 — todos entre semana. Único control limpio de fin de semana: UACH el sábado 15 costó $13.21 contra su promedio de $11.30 del ciclo, +17%.",
+            "confianza": "media"
+          },
+          {
+            "titulo": "UACH cuesta 71% más que UAEH y ya lleva 85 conversaciones de retraso",
+            "texto": "Con el gasto acumulado prácticamente idéntico entre las dos universidades ($1,753 contra $1,746), UAEH trajo 206 conversaciones y UACH 121. No es un ciclo malo: UACH nunca ha bajado de $10 en tres ciclos. La decisión no es obvia porque son dos productos distintos —apagar UACH significa cero alumnos de UACH—, pero el precio de mantenerla es explícito y hay que verlo así: cada ciclo de UACH cuesta unas 23 conversaciones de UAEH que no se compraron.",
+            "evidencia": "UACH C0/C1/C2: $15.98, $11.69, $15.57; 121 conversaciones con $1,753.32 → $14.49. UAEH C0/C1/C2: $10.52, $6.01, $9.01; 206 conversaciones con $1,746.15 → $8.48. Mismo dinero a costo UAEH habría dado ~207 conversaciones.",
+            "confianza": "alta"
+          },
+          {
+            "titulo": "El 21 de agosto sí se puede derivar y confirma que el día 5 es el quiebre",
+            "texto": "El hueco del 21 se puede cerrar por resta: total de campaña menos los días 17–20, igual que se hizo con el 16. Sale que el viernes 21, día 5 de ambos ciclos B, las dos campañas se encarecieron a la vez: UAEH de $8.99 a $12.99 (+44%) y UACH de $13.12 a $37.48 (+186%). Que caigan las dos el mismo día podría ser el viernes, pero también compartían el día 5 de vida, y ya se había visto exactamente el mismo salto en el día 5 del ciclo A. El denominador común es el día de vida, no la fecha. Con esto la regla de los 4 días queda confirmada por tercera vez y el aprendizaje 1 se sostiene. La cifra es derivada, no leída, y el hueco advierte que los totales del 21 no cuadraban del todo, así que trátala como estimación.",
+            "evidencia": "UAEH-C2: total 55 conv / $495.64 menos días 17–20 (46 conv / $378.68) = 9 conv / $116.96 → $12.99. UACH-C2: total 32 conv / $498.36 menos días 17–20 (29 conv / $385.91) = 3 conv / $112.45 → $37.48. Comparar con el día 5 del ciclo A en UAEH: $45.32.",
+            "confianza": "media"
+          },
+          {
+            "titulo": "También se pierde gente después del clic, no sólo antes",
+            "texto": "El embudo clic→chat del ciclo C está en 32.7% contra 41.2% del ciclo A. Es una caída menor que la del CTR, pero va en la misma dirección y apunta a algo distinto: los que sí hacen clic tampoco terminan de escribir. La explicación más barata de descartar es el destino de mensajes. El aprendizaje 6 ya documentó que en automático Meta reparte hacia Messenger, que no se atiende, y el pendiente 3 sigue abierto: nadie ha confirmado que el ciclo C esté en WhatsApp manual. Si está en automático, esta caída se explica sola y se arregla hoy.",
+            "evidencia": "Ciclo A: 75 conv / 182 clics = 41.2% (días 1–4: 42.6%, 51.0%, 60.7%, 42.3%). Ciclo C: 16 conv / 49 clics = 32.7% (día 1: 28.6%, día 2: 34.3%). Umbral clic_chat_bueno = 35%.",
+            "confianza": "media"
+          }
+        ],
+        "acciones": [
+          {
+            "que": "Confirma hoy que el ciclo C tiene el destino de mensajes en manual y sólo WhatsApp.",
+            "porque": "Es el pendiente 3, cuesta dos minutos y es la única causa de la caída del clic→chat (41.2% → 32.7%) que se puede arreglar sin gastar nada. Si está en automático, estás pagando clics que aterrizan en un Messenger que no lees.",
+            "urgencia": "hoy"
+          },
+          {
+            "que": "Sube una imagen nueva para UAEH hoy y arranca el siguiente ciclo con ella el lunes 31, no recicles la publicación otra vez.",
+            "porque": "El CTR de la misma publicación bajó de 1.17% a 0.48% en tres corridas con el CPM plano en ~$21. No es la subasta, es que ya la vieron. Recuperar el CTR del ciclo A al CPM actual devolvería el costo por conversación a la zona de $6–7.",
+            "urgencia": "hoy"
+          },
+          {
+            "que": "Baja el presupuesto del ciclo C de $130 a $100 y apágalo el martes 25 al cierre.",
+            "porque": "Los $130 no están comprando nada mejor: el sábado sólo gastó $60.86 (47% del tope) y el domingo se pasó a $154.37 a $12.86 por conversación. Además todos los ciclos comparables corrieron a $100, y si dejas la variable suelta no vas a poder saber si el creativo nuevo funcionó. Apagarlo el 25 le da sus 4 días de vida (22–25).",
+            "urgencia": "hoy"
+          },
+          {
+            "que": "Arranca todos los ciclos en lunes, para que los 4 días de vida caigan de lunes a jueves.",
+            "porque": "Los 7 días de UAEH por debajo de $9 son todos entre semana; los 3 días de fin de semana con datos costaron $45.32, $15.22 y $12.86. El ciclo C quemó la mitad de su vida útil en sábado y domingo. Está mezclado con el día de ciclo, así que no es prueba cerrada, pero el costo de alinear a lunes es cero.",
+            "urgencia": "esta semana"
+          },
+          {
+            "que": "Dale a UACH una última corrida con imagen propia y nueva, $100, lunes a jueves. Si cierra arriba de $12, reasigna ese presupuesto a UAEH.",
+            "porque": "UACH lleva tres ciclos sin bajar de $10 y va 85 conversaciones abajo con el mismo dinero. Pero nunca ha tenido creativo propio fresco, así que apagarla ahora sería cerrar el mercado sin haber probado la única palanca que sabemos que funciona. Un ciclo son $400 y cierra el pendiente 4 con dato en vez de con corazonada.",
+            "urgencia": "esta semana"
+          }
+        ],
+        "preguntas": [
+          "¿Cuánto cuesta el curso y qué porcentaje de las conversaciones de WhatsApp termina inscribiéndose? Sin eso, los umbrales de $6 / $8 / $12 por conversación son números inventados: no hay forma de saber si $13.45 es caro o simplemente incómodo.",
+          "¿La imagen del ciclo C es exactamente la misma que la del 11 de agosto, o ya cambió y sólo se repitió el texto? Todo el hallazgo principal depende de esto.",
+          "¿Cuáles son las fechas de examen y de cierre de inscripciones de UAEH y UACH? Si el registro de UAEH ya cerró, la caída de CTR no es fatiga de creativo sino que se acabó el mercado, y la imagen nueva no arreglaría nada.",
+          "De las 16 conversaciones del ciclo C, ¿cuántas llegaron a WhatsApp y cuántas a Messenger?",
+          "¿Cuál es la clasificación de calidad y de tasa de interacción que Meta le está dando al anuncio del ciclo C? El checklist pide revisarla desde el día 3, que es hoy."
+        ],
+        "umbrales_sugeridos": {
+          "comentario": "Dos umbrales están mal calibrados y hoy darían falsos positivos o falsos negativos. Los de costo por conversación no los toco: para moverlos hace falta saber cuánto vale un alumno, que es la primera pregunta de la lista. Nota que con los umbrales actuales sólo 1 de 7 ciclos ha calificado como 'bueno'.",
+          "cambios": [
+            {
+              "umbral": "alcance_agotamiento",
+              "de": 20000,
+              "a": 12000,
+              "porque": "Los ciclos A y B murieron con 11,535 y 10,738 de alcance, muy lejos de 20,000. El umbral viejo venía de una sola campaña de julio y nunca dispararía a tiempo. La frecuencia ≥1.9 sigue siendo el mejor indicador; este queda como respaldo."
+            },
+            {
+              "umbral": "ctr_minimo",
+              "de": 0.8,
+              "a": 0.7,
+              "porque": "El mejor ciclo de todo el historial (UAEH-C1, $6.01 por conversación) cerró con CTR de 0.78% y el umbral actual lo marcaría como fallido. A 0.7 sigue capturando el ciclo C (0.48%), que es el que sí está roto."
+            }
+          ]
+        }
+      }
+    }
+  ],
   "notas": []
 }
