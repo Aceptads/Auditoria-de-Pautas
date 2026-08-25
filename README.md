@@ -28,6 +28,47 @@ También se puede abrir `index.html` directo, o entrar a
 [la versión publicada](https://aceptads.github.io/Auditoria-de-Pautas/) — pero en esos dos casos
 la pestaña **Analizar** no funciona, porque necesita el servidor.
 
+## El botón Actualizar datos
+
+Trae de Meta **sólo los días que faltan**. Antes de abrir nada compara el último día cargado
+contra ayer —Meta nunca reporta el día en curso— y si ya está al día no hace absolutamente nada:
+el trabajo más barato es el que no se hace. Los huecos viejos aparecen como enlaces; cada uno se
+pide con un clic.
+
+Usa un **Chrome aparte**, con su propio perfil en `.chrome-perfil/`, manejado por el protocolo de
+depuración. No toca el Chrome de siempre ni pelea con la ventana que ya tengas abierta.
+
+### Antes de la primera vez: iniciar sesión
+
+Ese Chrome empieza sin sesión. La primera vez el botón te lo dirá y aparecerá **Iniciar sesión en
+Facebook**: se abre la ventana, entras a tu cuenta ahí, y la cookie queda guardada en ese perfil.
+Se hace una sola vez, y sólo hay que repetirlo si Facebook cierra la sesión.
+
+> `.chrome-perfil/` está en `.gitignore`. Lleva las cookies de tu sesión y este repositorio es
+> público: **nunca** debe subirse.
+
+### Qué escribe
+
+Agrega los renglones nuevos a `dias`, recalcula los totales de las campañas que tienen desglose
+diario, y mueve `meta.ultimo_dia_con_datos`. Lo curado a mano no lo toca.
+
+No sobrescribe días que ya estén cargados, así que apretarlo de más es inofensivo.
+
+Si una fila no se puede asignar a una campaña sin ambigüedad —hay tres campañas con el mismo
+nombre— la reporta en vez de adivinar.
+
+También corre desde la terminal:
+
+```bash
+node scripts/traer.mjs                                  # lo que falte
+node scripts/traer.mjs --que-falta                      # sólo dice qué falta
+node scripts/traer.mjs --desde 2026-08-21 --hasta 2026-08-21
+node scripts/traer.mjs --login                          # abre Chrome para iniciar sesión
+```
+
+Con rangos largos la tabla de Meta a veces no termina de renderizar. Si pasa, se pide en tramos
+de tres a seis días.
+
 ## La pestaña Analizar
 
 Manda todos los datos de la app a **Claude Opus 5** y devuelve hallazgos, acciones y preguntas
@@ -150,12 +191,14 @@ Mientras tanto la carga es manual, como se describe arriba.
 ```
 iniciar.cmd                       doble clic: levanta todo
 index.html                        la app entera, sin dependencias
-servidor.mjs                      sirve la app y conecta con Claude Code
+servidor.mjs                      sirve la app, trae datos y conecta con Claude Code
 analisis/prompt.md                cómo analiza — editable
 data/pautas.js                    todos los datos y umbrales
 data/memoria.json                 análisis guardados y notas
-scripts/actualizar.mjs            trae los datos de la Graph API
-.github/workflows/actualizar.yml  lo corre diario a las 3 p.m.
+scripts/traer.mjs                 saca de Meta sólo los días que faltan
+scripts/chrome.mjs                cliente del protocolo de Chrome, sin dependencias
+scripts/actualizar.mjs            alternativa por Graph API, si algún día hay token
+.github/workflows/actualizar.yml  lo correría diario a las 3 p.m.
 ```
 
 Node sin dependencias, nada que instalar. El servidor escucha sólo en `127.0.0.1`.

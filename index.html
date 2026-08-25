@@ -127,6 +127,9 @@
   .btn:disabled{opacity:.5;cursor:default;filter:none}
   .btn.ghost{background:none;color:var(--tx2);border:1px solid var(--line)}
   .btn.ghost:hover{color:var(--tx);border-color:var(--tx3);filter:none}
+  .lnk{background:none;border:none;border-bottom:1px dashed var(--tx3);color:var(--tx2);
+    font-family:var(--f);font-size:13.5px;padding:0;cursor:pointer}
+  .lnk:hover{color:var(--info);border-bottom-color:var(--info)}
   .spin{display:inline-block;width:13px;height:13px;border:2px solid var(--line);
     border-top-color:var(--info);border-radius:50%;animation:g .8s linear infinite;vertical-align:-2px;margin-right:7px}
   @keyframes g{to{transform:rotate(360deg)}}
@@ -212,6 +215,16 @@
     </div>
 
     <div id="an-on" style="display:none">
+      <div class="card" style="margin-bottom:14px">
+        <h3>Datos</h3>
+        <p class="muted" id="up-que" style="margin:0 0 4px">Viendo qué falta…</p>
+        <div class="an-fila">
+          <button class="btn ghost" id="up-btn">Actualizar datos</button>
+          <button class="btn ghost" id="up-login" style="display:none">Iniciar sesión en Facebook</button>
+          <span class="muted" id="up-estado"></span>
+        </div>
+      </div>
+
       <div class="card">
         <h3>¿Algo en particular? <span class="v-dim" style="font-weight:400;text-transform:none;letter-spacing:0">Opcional. Si se deja vacío hace la revisión general.</span></h3>
         <textarea id="an-preg" rows="2" placeholder="Ej.: ¿corto hoy el Ciclo C o le doy un día más? / ¿vale la pena seguir pautando UACH?"></textarea>
@@ -827,7 +840,77 @@ const esc = s => String(s==null?"":s).replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;
 fetch("/api/estado").then(r=>r.ok?r.json():Promise.reject()).then(()=>{
   $("#an-on").style.display="";
   cargarMemoria();
+  verQueFalta();
 }).catch(()=>{ $("#an-off").style.display="flex"; });
+
+/* ---- Traer de Meta sólo los días que faltan ---- */
+const upBtn=$("#up-btn"), upEst=$("#up-estado"), upLog=$("#up-login");
+
+async function verQueFalta(){
+  try{
+    const q=await (await fetch("/api/pendiente")).json();
+    const viejo = q.ultimo_cargado!==D.meta.ultimo_dia_con_datos;
+    let h;
+    if(q.al_dia){
+      h=`Al día: el último con datos es el <b>${corto(q.ultimo_cargado)}</b>,
+         y Meta no reporta el día en curso.`;
+      if(viejo) h+=` <b class="v-warn">Recarga para ver lo nuevo.</b>`;
+      upBtn.textContent="Revisar de nuevo";
+    }else{
+      upBtn.textContent=`Traer ${q.dias.length} día${q.dias.length>1?"s":""}`;
+      h=`Faltan <b>${q.dias.length} día${q.dias.length>1?"s":""}</b>:
+         del ${corto(q.desde)} al ${corto(q.hasta)}. Sólo se piden esos.`;
+    }
+    if(q.huecos_viejos?.length)
+      h+=`<br><span class="v-dim">Huecos viejos: </span>`+
+         q.huecos_viejos.map(x=>`<button class="lnk" data-d="${x.desde}" data-h="${x.hasta}"
+           title="${esc(x.motivo)}">${esc(x.rango)}</button>`).join('<span class="v-dim"> · </span>');
+    $("#up-que").innerHTML=h;
+    $("#up-que").querySelectorAll("button.lnk").forEach(b=>
+      b.addEventListener("click",()=>actualizar(b.dataset.d,b.dataset.h)));
+  }catch(e){ $("#up-que").innerHTML=`<span class="v-bad">No pude consultar el estado: ${esc(e.message)}</span>`; }
+}
+
+upBtn.addEventListener("click", ()=>actualizar());
+
+async function actualizar(desde, hasta){
+  upBtn.disabled=true; upLog.style.display="none";
+  const t0=Date.now();
+  const reloj=setInterval(()=>{
+    upEst.innerHTML=`<span class="spin"></span>Abriendo Meta y leyendo la tabla… ${Math.round((Date.now()-t0)/1000)} s`;
+  },250);
+  const fin=(m)=>{ clearInterval(reloj); upBtn.disabled=false; upEst.innerHTML=m||""; };
+  try{
+    const {id}=await (await fetch("/api/actualizar",{method:"POST",
+      headers:{"content-type":"application/json"},
+      body:JSON.stringify(desde?{desde,hasta}:{})})).json();
+    for(;;){
+      await new Promise(s=>setTimeout(s,2000));
+      const t=await (await fetch("/api/actualizar/"+id)).json();
+      if(t.estado==="error"){ fin(`<span class="v-bad">${esc(t.error)}</span>`); return; }
+      if(t.estado!=="listo") continue;
+      const r=t.resultado;
+      if(r.necesita_login){
+        fin(`<span class="v-warn">${esc(r.mensaje)}</span>`);
+        upLog.style.display=""; return;
+      }
+      if(r.error){ fin(`<span class="v-bad">${esc(r.error)}</span>`); return; }
+      fin(`<span class="v-ok">${esc(r.mensaje)}</span>`);
+      verQueFalta();
+      /* Los datos viven en un script cargado al inicio: para verlos
+         reflejados en los gráficos hay que recargar. */
+      if(r.agregados?.length) setTimeout(()=>location.reload(),1600);
+      return;
+    }
+  }catch(e){ fin(`<span class="v-bad">${esc(e.message)}</span>`); }
+}
+
+upLog.addEventListener("click", async ()=>{
+  upLog.disabled=true;
+  const r=await (await fetch("/api/login",{method:"POST"})).json();
+  upEst.innerHTML=`<span class="v-warn">${esc(r.mensaje)}</span>`;
+  upLog.disabled=false;
+});
 
 function pintarAnalisis(reg, host){
   const r=reg.resultado||{};

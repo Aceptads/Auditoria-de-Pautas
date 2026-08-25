@@ -17,6 +17,7 @@ import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join, normalize, extname } from "node:path";
 import { randomUUID } from "node:crypto";
+import { traer, queFalta, leerDatos, abrirParaLogin } from "./scripts/traer.mjs";
 
 const RAIZ = dirname(fileURLToPath(import.meta.url));
 const PUERTO = Number(process.env.PUERTO || 4321);
@@ -209,6 +210,33 @@ const servidor = createServer(async (req, res) => {
       const t = trabajos.get(ruta.slice("/api/analizar/".length));
       if (!t) return json(res, 404, { error: "Ese análisis ya no está en memoria." });
       return json(res, 200, t);
+    }
+
+    /* ---- traer datos de Meta ---- */
+    if (ruta === "/api/pendiente") {
+      const { DATOS } = await leerDatos();
+      return json(res, 200, queFalta(DATOS));
+    }
+
+    if (ruta === "/api/actualizar" && req.method === "POST") {
+      const { desde, hasta } = await leerCuerpo(req);
+      const id = randomUUID();
+      const pasos = [];
+      trabajos.set(id, { estado: "corriendo", pasos });
+      traer({ desde, hasta, log: (m) => { pasos.push(m); trabajos.get(id).pasos = [...pasos]; } })
+        .then((r) => trabajos.set(id, { estado: "listo", resultado: r, pasos }))
+        .catch((e) => trabajos.set(id, { estado: "error", error: e.message, pasos }));
+      return json(res, 202, { id });
+    }
+
+    if (ruta.startsWith("/api/actualizar/")) {
+      const t = trabajos.get(ruta.slice("/api/actualizar/".length));
+      if (!t) return json(res, 404, { error: "Ese trabajo ya no está en memoria." });
+      return json(res, 200, t);
+    }
+
+    if (ruta === "/api/login" && req.method === "POST") {
+      return json(res, 200, await abrirParaLogin());
     }
 
     if (ruta === "/api/memoria" && req.method === "GET") {

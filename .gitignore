@@ -1,0 +1,6 @@
+# Perfil del Chrome de automatización: lleva las cookies de la sesión de
+# Facebook. NUNCA debe subirse — este repositorio es público.
+.chrome-perfil/
+
+node_modules/
+*.log
