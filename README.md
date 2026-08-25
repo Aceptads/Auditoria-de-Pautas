@@ -22,8 +22,43 @@ ya nos hicimos al menos una vez.
 
 ## Cómo se ve
 
-Abrir `index.html` con doble clic. No necesita servidor ni instalar nada.
-Publicado también en GitHub Pages (Settings → Pages → rama `main`, carpeta raíz).
+Doble clic en **`iniciar.cmd`**. Levanta el servidor local y abre http://localhost:4321.
+
+También se puede abrir `index.html` directo, o entrar a
+[la versión publicada](https://aceptads.github.io/Auditoria-de-Pautas/) — pero en esos dos casos
+la pestaña **Analizar** no funciona, porque necesita el servidor.
+
+## La pestaña Analizar
+
+Manda todos los datos de la app a **Claude Opus 5** y devuelve hallazgos, acciones y preguntas
+abiertas. No usa API key ni token: invoca el `claude` que ya está instalado en la máquina, o sea
+la misma suscripción de Claude Code de siempre.
+
+```
+[navegador] → servidor.mjs → claude -p --model claude-opus-5 → data/memoria.json
+```
+
+Cada análisis tarda entre 30 s y 3 min y cuesta unos centavos de dólar (la app muestra cuánto).
+
+### La memoria
+
+`data/memoria.json` guarda **todo**: cada análisis completo con su fecha, hasta qué día tenía datos,
+la pregunta que se hizo y cuánto costó. En la siguiente corrida, Claude recibe los últimos cuatro
+como contexto, así que puede decir qué cambió, si lo que predijo se cumplió y corregirse cuando un
+hallazgo viejo ya no se sostiene.
+
+También guarda **notas**: contexto que los números no traen — qué imagen se subió, qué se cambió en
+la configuración, qué pasó ese día. Se escriben desde la misma pestaña y Claude las lee. Sin eso,
+un día malo es sólo un número; con eso, es un número con causa.
+
+### Cambiar cómo analiza
+
+El prompt vive en **`analisis/prompt.md`** y es texto plano. Se edita y la siguiente corrida ya usa
+la versión nueva — no hay que reiniciar el servidor. Ahí están las reglas de análisis (comparar
+siempre contra algo, separar causas, decir cuándo no se puede saber) y el formato de salida.
+
+Para cambiar de modelo: `set MODELO=claude-sonnet-5 && node servidor.mjs`.
+Para cambiar de puerto: `set PUERTO=5000`.
 
 ## Cómo se actualiza
 
@@ -113,8 +148,14 @@ Mientras tanto la carga es manual, como se describe arriba.
 ## Estructura
 
 ```
+iniciar.cmd                       doble clic: levanta todo
 index.html                        la app entera, sin dependencias
+servidor.mjs                      sirve la app y conecta con Claude Code
+analisis/prompt.md                cómo analiza — editable
 data/pautas.js                    todos los datos y umbrales
+data/memoria.json                 análisis guardados y notas
 scripts/actualizar.mjs            trae los datos de la Graph API
 .github/workflows/actualizar.yml  lo corre diario a las 3 p.m.
 ```
+
+Node sin dependencias, nada que instalar. El servidor escucha sólo en `127.0.0.1`.

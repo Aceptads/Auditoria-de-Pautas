@@ -114,6 +114,52 @@
                 border-radius:8px;padding:9px 12px;margin-top:8px;max-width:80ch}
   .muted{color:var(--tx2);font-size:13.5px}
   code{background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:12.5px}
+
+  /* ---------- Analizar ---------- */
+  textarea{width:100%;background:var(--bg);color:var(--tx);border:1px solid var(--line);border-radius:9px;
+    padding:11px 13px;font-family:var(--f);font-size:14px;line-height:1.5;resize:vertical}
+  textarea:focus{outline:none;border-color:var(--info)}
+  textarea::placeholder{color:var(--tx3)}
+  .an-fila{display:flex;align-items:center;gap:14px;margin-top:11px;flex-wrap:wrap}
+  .btn{background:var(--info);color:#08111f;border:none;border-radius:9px;padding:10px 20px;
+    font-family:var(--f);font-size:14px;font-weight:650;cursor:pointer;transition:.15s}
+  .btn:hover{filter:brightness(1.1)}
+  .btn:disabled{opacity:.5;cursor:default;filter:none}
+  .btn.ghost{background:none;color:var(--tx2);border:1px solid var(--line)}
+  .btn.ghost:hover{color:var(--tx);border-color:var(--tx3);filter:none}
+  .spin{display:inline-block;width:13px;height:13px;border:2px solid var(--line);
+    border-top-color:var(--info);border-radius:50%;animation:g .8s linear infinite;vertical-align:-2px;margin-right:7px}
+  @keyframes g{to{transform:rotate(360deg)}}
+  .an-tit{font-size:19px;font-weight:650;line-height:1.32;margin:0 0 8px;max-width:70ch}
+  .an-res{margin-top:16px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);
+    padding:22px;border-top:3px solid var(--tx3)}
+  .an-res.bien{border-top-color:var(--ok)} .an-res.alerta{border-top-color:var(--warn)}
+  .an-res.critico{border-top-color:var(--bad)}
+  .an-res h4{margin:26px 0 12px;font-size:12px;font-weight:650;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--tx3)}
+  .an-item{border-left:2px solid var(--line);padding-left:15px;margin-bottom:17px}
+  .an-item b{display:block;font-size:15px;font-weight:600;margin-bottom:4px}
+  .an-item p{margin:0 0 6px;color:var(--tx2);font-size:14px;max-width:80ch}
+  .an-item .ev{font-size:13px;color:var(--tx3);background:var(--panel2);border-radius:7px;
+    padding:8px 11px;margin-top:7px;max-width:80ch}
+  .an-acc{display:flex;gap:13px;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--line)}
+  .an-acc:last-child{border-bottom:none}
+  .an-acc .n{flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--panel2);
+    border:1px solid var(--line);font-size:11.5px;font-weight:650;display:grid;place-items:center;color:var(--tx2);margin-top:2px}
+  .an-acc b{display:block;font-size:14.5px;font-weight:600;margin-bottom:3px}
+  .an-acc p{margin:0;color:var(--tx2);font-size:13.5px;max-width:80ch}
+  .an-meta{display:flex;gap:16px;flex-wrap:wrap;color:var(--tx3);font-size:12.5px;
+    margin-top:22px;padding-top:14px;border-top:1px solid var(--line)}
+  .hist{border:1px solid var(--line);border-radius:11px;background:var(--panel);margin-bottom:9px;overflow:hidden}
+  .hist summary{padding:13px 16px;cursor:pointer;font-size:14px;display:flex;gap:11px;align-items:center;list-style:none}
+  .hist summary::-webkit-details-marker{display:none}
+  .hist summary:hover{background:var(--panel2)}
+  .hist summary .f{color:var(--tx3);font-size:12.5px;flex:0 0 auto}
+  .hist summary .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hist .cont{padding:0 16px 16px}
+  .nota{border:1px solid var(--line);border-left:2px solid var(--purple);border-radius:9px;
+    background:var(--panel);padding:12px 15px;margin-bottom:9px;font-size:14px}
+  .nota .f{color:var(--tx3);font-size:12px;margin-bottom:3px}
   footer{margin-top:56px;padding-top:22px;border-top:1px solid var(--line);color:var(--tx3);font-size:13px}
 </style>
 </head>
@@ -126,6 +172,7 @@
     <div class="sub" id="sub"></div>
     <nav id="nav">
       <a href="#hoy" class="on">Hoy</a>
+      <a href="#analizar">Analizar</a>
       <a href="#curva">Curva del ciclo</a>
       <a href="#linea">Línea de tiempo</a>
       <a href="#ciclos">Comparar ciclos</a>
@@ -147,6 +194,46 @@
     <div class="grid g4" id="kpis"></div>
     <h3 style="font-size:15px;font-weight:650;margin:26px 0 12px">Qué está pasando</h3>
     <div id="alertas"></div>
+  </section>
+
+  <section id="analizar">
+    <div class="sec-h"><h2>Analizar</h2><span class="why">que Claude lea todo y saque conclusiones</span></div>
+    <p class="sec-note">Manda todos los datos de la app —y los análisis anteriores— a Claude Opus 5,
+      que corre en esta misma computadora a través de Claude Code. No usa API key ni token de Meta.
+      Todo lo que salga se guarda en <code>data/memoria.json</code> y entra como contexto del
+      siguiente análisis, para que pueda decir qué cambió y corregirse a sí mismo.</p>
+
+    <div id="an-off" class="alert" style="display:none">
+      <div class="ico" style="color:var(--warn)">●</div>
+      <div><b>Esto necesita el servidor local</b>
+        <p>La página está abierta como archivo o desde GitHub Pages, y ahí no hay quién hable con Claude.</p>
+        <div class="fix">Doble clic en <code>iniciar.cmd</code>, o en una terminal:
+          <code>node servidor.mjs</code>. Luego abrir <code>http://localhost:4321</code>.</div></div>
+    </div>
+
+    <div id="an-on" style="display:none">
+      <div class="card">
+        <h3>¿Algo en particular? <span class="v-dim" style="font-weight:400;text-transform:none;letter-spacing:0">Opcional. Si se deja vacío hace la revisión general.</span></h3>
+        <textarea id="an-preg" rows="2" placeholder="Ej.: ¿corto hoy el Ciclo C o le doy un día más? / ¿vale la pena seguir pautando UACH?"></textarea>
+        <div class="an-fila">
+          <button class="btn" id="an-btn">Analizar</button>
+          <span class="muted" id="an-estado"></span>
+        </div>
+      </div>
+      <div id="an-res"></div>
+
+      <div class="card" style="margin-top:22px">
+        <h3>Apuntar algo que los datos no dicen</h3>
+        <p class="muted" style="margin:0 0 10px">Qué imagen se subió, qué se cambió en la configuración,
+          qué pasó ese día. Se guarda en la memoria y Claude lo lee en el siguiente análisis.</p>
+        <textarea id="an-nota" rows="2" placeholder="Ej.: el 22 de agosto subí la imagen nueva con el logo más grande y cambié el copy"></textarea>
+        <div class="an-fila"><button class="btn ghost" id="an-nota-btn">Guardar nota</button>
+          <span class="muted" id="an-nota-est"></span></div>
+      </div>
+
+      <h3 style="font-size:15px;font-weight:650;margin:30px 0 12px">Memoria</h3>
+      <div id="an-hist"></div>
+    </div>
   </section>
 
   <section id="curva">
@@ -726,6 +813,145 @@ $("#pend").innerHTML = pend.map(p=>{
         :`<span class="tag ${p.impacto==='alto'?'bad':''}">impacto ${p.impacto}</span>
           <span class="tag">esfuerzo ${p.esfuerzo}</span>`}</span></li>`;
 }).join("");
+
+/* ============================================================
+   11. ANALIZAR — habla con Claude Code corriendo en esta máquina
+   ============================================================ */
+const ESTADO_TXT={bien:["ok","Todo en orden"],alerta:["warn","Hay que revisar"],critico:["bad","Urgente"]};
+const fechaHora = s => { const d=new Date(s);
+  return `${d.getDate()} ${MES[d.getMonth()]} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`; };
+const esc = s => String(s==null?"":s).replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c]));
+
+/* Sin servidor local (archivo suelto o GitHub Pages) sólo se muestran
+   las instrucciones para levantarlo. */
+fetch("/api/estado").then(r=>r.ok?r.json():Promise.reject()).then(()=>{
+  $("#an-on").style.display="";
+  cargarMemoria();
+}).catch(()=>{ $("#an-off").style.display="flex"; });
+
+function pintarAnalisis(reg, host){
+  const r=reg.resultado||{};
+  const [cls,lbl]=ESTADO_TXT[r.estado]||["","—"];
+  let h=`<div class="an-res ${r.estado||""}">
+    <span class="tag ${cls}">${lbl}</span>
+    <p class="an-tit" style="margin-top:10px">${esc(r.titular)}</p>
+    <p class="muted" style="max-width:80ch">${esc(r.resumen)}</p>`;
+
+  if(r.cambios) h+=`<h4>Qué cambió</h4><p class="muted" style="max-width:80ch;margin:0">${esc(r.cambios)}</p>`;
+
+  if(r.hallazgos?.length){
+    h+=`<h4>Hallazgos</h4>`;
+    r.hallazgos.forEach(x=>{
+      const c=x.confianza==="alta"?"var(--ok)":x.confianza==="baja"?"var(--bad)":"var(--warn)";
+      h+=`<div class="an-item" style="border-left-color:${c}">
+        <b>${esc(x.titulo)} <span class="tag" style="color:${c};border-color:${c}55">${esc(x.confianza)}</span></b>
+        <p>${esc(x.texto)}</p>${x.evidencia?`<div class="ev">${esc(x.evidencia)}</div>`:""}</div>`;
+    });
+  }
+  if(r.acciones?.length){
+    h+=`<h4>Qué hacer</h4>`;
+    r.acciones.forEach((x,i)=>{
+      const u=x.urgencia==="hoy"?"bad":x.urgencia==="esta semana"?"warn":"";
+      h+=`<div class="an-acc"><div class="n">${i+1}</div><div style="flex:1">
+        <b>${esc(x.que)} <span class="tag ${u}">${esc(x.urgencia)}</span></b>
+        <p>${esc(x.porque)}</p></div></div>`;
+    });
+  }
+  if(r.preguntas?.length)
+    h+=`<h4>Qué falta para saber más</h4><ul class="clean">`+
+       r.preguntas.map(p=>`<li><span class="mk">?</span><span class="muted">${esc(p)}</span></li>`).join("")+`</ul>`;
+
+  const us=r.umbrales_sugeridos;
+  if(us?.cambios?.length){
+    h+=`<h4>Umbrales que deberían cambiar</h4>`;
+    if(us.comentario) h+=`<p class="muted" style="max-width:80ch">${esc(us.comentario)}</p>`;
+    h+=`<ul class="clean">`+us.cambios.map(c=>
+      `<li><span class="mk">→</span><span><code>${esc(c.umbral)}</code> de <b>${esc(c.de)}</b> a <b>${esc(c.a)}</b>
+       <span class="muted">— ${esc(c.porque)}</span></span></li>`).join("")+`</ul>`;
+  }
+
+  h+=`<div class="an-meta">
+    <span>${fechaHora(reg.fecha)}</span>
+    <span>datos hasta ${reg.datos_hasta?corto(reg.datos_hasta):"—"}</span>
+    <span>${esc(reg.modelo)}</span>
+    ${reg.duracion_ms?`<span>${(reg.duracion_ms/1000).toFixed(0)} s</span>`:""}
+    ${reg.costo_usd!=null?`<span>$${reg.costo_usd.toFixed(3)} USD</span>`:""}
+    ${reg.pregunta?`<span>pregunta: «${esc(reg.pregunta)}»</span>`:""}</div></div>`;
+  host.innerHTML=h;
+}
+
+const btn=$("#an-btn"), est=$("#an-estado");
+btn.addEventListener("click", async ()=>{
+  btn.disabled=true;
+  const t0=Date.now();
+  const reloj=setInterval(()=>{
+    est.innerHTML=`<span class="spin"></span>Leyendo los datos y pensando… ${Math.round((Date.now()-t0)/1000)} s`;
+  },250);
+  const fin=(msg)=>{ clearInterval(reloj); btn.disabled=false; est.innerHTML=msg||""; };
+  try{
+    const r=await fetch("/api/analizar",{method:"POST",headers:{"content-type":"application/json"},
+      body:JSON.stringify({pregunta:$("#an-preg").value})});
+    const {id}=await r.json();
+    /* El análisis tarda de 30 s a 3 min: se consulta el trabajo
+       en vez de dejar un fetch colgado todo ese rato. */
+    for(;;){
+      await new Promise(s=>setTimeout(s,2000));
+      const t=await (await fetch("/api/analizar/"+id)).json();
+      if(t.estado==="listo"){ fin(""); pintarAnalisis(t.registro,$("#an-res"));
+        $("#an-preg").value=""; cargarMemoria();
+        $("#an-res").scrollIntoView({behavior:"smooth",block:"nearest"}); return; }
+      if(t.estado==="error"){ fin(`<span class="v-bad">${esc(t.error)}</span>`); return; }
+    }
+  }catch(e){ fin(`<span class="v-bad">No se pudo hablar con el servidor: ${esc(e.message)}</span>`); }
+});
+
+$("#an-nota-btn").addEventListener("click", async ()=>{
+  const ta=$("#an-nota"), t=ta.value.trim();
+  if(!t) return;
+  await fetch("/api/nota",{method:"POST",headers:{"content-type":"application/json"},
+    body:JSON.stringify({texto:t})});
+  ta.value=""; $("#an-nota-est").innerHTML=`<span class="v-ok">Guardada</span>`;
+  setTimeout(()=>$("#an-nota-est").innerHTML="",2500);
+  cargarMemoria();
+});
+
+async function cargarMemoria(){
+  const m=await (await fetch("/api/memoria")).json();
+  const host=$("#an-hist");
+  if(!m.analisis.length && !m.notas.length){
+    host.innerHTML=`<p class="muted">Todavía no hay nada guardado. El primer análisis abre la memoria.</p>`;
+    return;
+  }
+  let h="";
+  if(m.notas.length){
+    h+=`<p class="muted" style="margin:0 0 9px">${m.notas.length} nota${m.notas.length>1?"s":""} de contexto:</p>`;
+    h+=[...m.notas].reverse().map(n=>
+      `<div class="nota"><div class="f">${fechaHora(n.fecha)}</div>${esc(n.texto)}</div>`).join("");
+  }
+  if(m.analisis.length){
+    h+=`<p class="muted" style="margin:${m.notas.length?"18px":"0"} 0 9px">${m.analisis.length} análisis:</p>`;
+    h+=[...m.analisis].reverse().map(a=>{
+      const [cls,lbl]=ESTADO_TXT[a.resultado?.estado]||["","—"];
+      return `<details class="hist" data-id="${a.id}">
+        <summary><span class="f">${fechaHora(a.fecha)}</span>
+          <span class="tag ${cls}">${lbl}</span>
+          <span class="t">${esc(a.resultado?.titular)}</span></summary>
+        <div class="cont"></div></details>`;
+    }).join("");
+  }
+  host.innerHTML=h;
+  /* Cada análisis se pinta al abrirlo: renderizar todos de golpe
+     llena la página de bloques que nadie está mirando. */
+  host.querySelectorAll("details.hist").forEach(d=>{
+    d.addEventListener("toggle",()=>{
+      const c=d.querySelector(".cont");
+      if(d.open && !c.dataset.pintado){
+        pintarAnalisis(m.analisis.find(a=>a.id===d.dataset.id), c);
+        c.dataset.pintado="1";
+      }
+    });
+  });
+}
 
 /* ---------- nav activa ---------- */
 const links=[...document.querySelectorAll("#nav a")];
