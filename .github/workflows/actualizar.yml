@@ -1,0 +1,47 @@
+name: Actualizar pautas
+
+# 3:00 p.m. de la Ciudad de México = 21:00 UTC (México ya no cambia de horario).
+on:
+  schedule:
+    - cron: "0 21 * * *"
+  workflow_dispatch:
+    inputs:
+      desde:
+        description: "Fecha inicial (YYYY-MM-DD). Vacío = últimos 14 días."
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Traer datos de Meta
+        env:
+          META_TOKEN: ${{ secrets.META_TOKEN }}
+          META_ACT: "229885267550030"
+        run: |
+          if [ -n "${{ inputs.desde }}" ]; then
+            node scripts/actualizar.mjs --desde "${{ inputs.desde }}"
+          else
+            node scripts/actualizar.mjs
+          fi
+
+      - name: Publicar si hubo cambios
+        run: |
+          if git diff --quiet -- data/pautas.js; then
+            echo "Sin cambios."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/pautas.js
+          git commit -m "Datos de pautas al $(date -u -d '1 day ago' +%Y-%m-%d)"
+          git push

@@ -1,0 +1,742 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Auditoría de Pautas — Aceptados</title>
+<style>
+  :root{
+    --bg:#0d0f14; --panel:#151920; --panel2:#1b202a; --line:#252b37;
+    --tx:#e7eaf0; --tx2:#98a2b3; --tx3:#69738a;
+    --ok:#34d399; --warn:#fbbf24; --bad:#f87171; --info:#60a5fa; --purple:#a78bfa;
+    --r:14px;
+    --f:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--tx);font-family:var(--f);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:var(--info)}
+  h1,h2,h3{line-height:1.2;margin:0}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 20px 80px}
+
+  /* ---------- Cabecera ---------- */
+  header{border-bottom:1px solid var(--line);background:linear-gradient(180deg,#11151c,#0d0f14);padding:26px 0 0}
+  .head-in{max-width:1240px;margin:0 auto;padding:0 20px}
+  .kicker{color:var(--tx3);font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
+  h1{font-size:28px;font-weight:700;margin:6px 0 4px}
+  .sub{color:var(--tx2);font-size:14px}
+  nav{display:flex;gap:2px;margin-top:22px;overflow-x:auto;scrollbar-width:none}
+  nav::-webkit-scrollbar{display:none}
+  nav a{color:var(--tx2);text-decoration:none;padding:9px 14px;font-size:14px;font-weight:500;
+        border-bottom:2px solid transparent;white-space:nowrap;transition:.15s}
+  nav a:hover{color:var(--tx)}
+  nav a.on{color:var(--tx);border-bottom-color:var(--info)}
+
+  section{padding-top:44px;scroll-margin-top:12px}
+  .sec-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+  .sec-h h2{font-size:20px;font-weight:650}
+  .sec-h .why{color:var(--tx3);font-size:13px}
+  .sec-note{color:var(--tx2);font-size:14px;margin:0 0 18px;max-width:78ch}
+
+  /* ---------- Bloques ---------- */
+  .grid{display:grid;gap:14px}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  @media(max-width:900px){.g4,.g3,.g2{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.g4,.g3,.g2{grid-template-columns:1fr}}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+  .card h3{font-size:14px;font-weight:600;color:var(--tx2);margin-bottom:10px}
+
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;position:relative;overflow:hidden}
+  .kpi .lbl{color:var(--tx3);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+  .kpi .val{font-size:30px;font-weight:700;letter-spacing:-.02em;margin:6px 0 2px;font-variant-numeric:tabular-nums}
+  .kpi .foot{color:var(--tx2);font-size:13px}
+  .kpi::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--tx3)}
+  .kpi.ok::after{background:var(--ok)} .kpi.warn::after{background:var(--warn)}
+  .kpi.bad::after{background:var(--bad)} .kpi.info::after{background:var(--info)}
+  .kpi.ok .val{color:var(--ok)} .kpi.warn .val{color:var(--warn)} .kpi.bad .val{color:var(--bad)}
+
+  /* ---------- Alertas ---------- */
+  .alert{display:flex;gap:13px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);
+         border-left:3px solid var(--tx3);border-radius:10px;padding:14px 16px;margin-bottom:10px}
+  .alert.bad{border-left-color:var(--bad);background:linear-gradient(90deg,rgba(248,113,113,.07),var(--panel) 55%)}
+  .alert.warn{border-left-color:var(--warn);background:linear-gradient(90deg,rgba(251,191,36,.07),var(--panel) 55%)}
+  .alert.ok{border-left-color:var(--ok);background:linear-gradient(90deg,rgba(52,211,153,.07),var(--panel) 55%)}
+  .alert .ico{font-size:17px;line-height:1.35}
+  .alert b{display:block;font-size:14.5px;font-weight:650;margin-bottom:2px}
+  .alert p{margin:0;color:var(--tx2);font-size:13.5px}
+  .alert .fix{margin-top:7px;font-size:13.5px;color:var(--tx)}
+  .alert .fix::before{content:"→ ";color:var(--info);font-weight:700}
+
+  /* ---------- Tablas ---------- */
+  .tw{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--panel)}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:680px}
+  th,td{padding:9px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+  th{color:var(--tx3);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+     background:var(--panel2);position:sticky;top:0;z-index:1}
+  th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--panel)}
+  th:first-child{background:var(--panel2);z-index:2}
+  tbody tr:hover td{background:var(--panel2)}
+  tbody tr:hover td:first-child{background:var(--panel2)}
+  tr:last-child td{border-bottom:none}
+  td.num{font-variant-numeric:tabular-nums}
+  .v-ok{color:var(--ok)} .v-warn{color:var(--warn)} .v-bad{color:var(--bad)} .v-dim{color:var(--tx3)}
+  tfoot td{font-weight:650;background:var(--panel2);border-top:1px solid var(--line)}
+
+  .tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;
+       border:1px solid var(--line);color:var(--tx2);vertical-align:middle}
+  .tag.ok{color:var(--ok);border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.09)}
+  .tag.warn{color:var(--warn);border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.09)}
+  .tag.bad{color:var(--bad);border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.09)}
+  .tag.info{color:var(--info);border-color:rgba(96,165,250,.35);background:rgba(96,165,250,.09)}
+
+  /* ---------- Gráficos ---------- */
+  .chart{width:100%;height:auto;display:block}
+  .chart text{font-family:var(--f);fill:var(--tx3);font-size:11px}
+  .chart .yl{font-size:10.5px}
+  .grid-l{stroke:var(--line);stroke-width:1}
+  .axis{stroke:#333a49;stroke-width:1}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:12.5px;color:var(--tx2)}
+  .legend i{display:inline-block;width:18px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
+  .legend i.dash{background:none!important;border-top:3px dashed currentColor;height:0}
+
+  /* ---------- Listas ---------- */
+  ul.clean{list-style:none;padding:0;margin:0}
+  ul.clean li{padding:11px 0;border-bottom:1px solid var(--line);display:flex;gap:11px;align-items:flex-start;font-size:14px}
+  ul.clean li:last-child{border-bottom:none}
+  ul.clean .mk{color:var(--tx3);flex:0 0 auto;font-size:13px;margin-top:1px}
+  .learn{border-left:2px solid var(--line);padding:2px 0 2px 16px;margin-bottom:22px}
+  .learn h4{margin:0 0 5px;font-size:15.5px;font-weight:650}
+  .learn p{margin:0 0 6px;color:var(--tx2);font-size:14px;max-width:80ch}
+  .learn .matiz{color:var(--warn);font-size:13.5px;background:rgba(251,191,36,.06);
+                border-radius:8px;padding:9px 12px;margin-top:8px;max-width:80ch}
+  .muted{color:var(--tx2);font-size:13.5px}
+  code{background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:12.5px}
+  footer{margin-top:56px;padding-top:22px;border-top:1px solid var(--line);color:var(--tx3);font-size:13px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head-in">
+    <div class="kicker">Aceptados · Exámenes de Admisión</div>
+    <h1>Auditoría de Pautas</h1>
+    <div class="sub" id="sub"></div>
+    <nav id="nav">
+      <a href="#hoy" class="on">Hoy</a>
+      <a href="#curva">Curva del ciclo</a>
+      <a href="#linea">Línea de tiempo</a>
+      <a href="#ciclos">Comparar ciclos</a>
+      <a href="#patrones">Patrones</a>
+      <a href="#dias">Día a día</a>
+      <a href="#aprendizajes">Aprendizajes</a>
+      <a href="#revision">Revisión</a>
+      <a href="#organico">Orgánico</a>
+      <a href="#pendientes">Pendientes</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section id="hoy">
+    <div class="sec-h"><h2>Estado de hoy</h2><span class="why">lo primero que hay que ver al abrir</span></div>
+    <p class="sec-note" id="hoy-note"></p>
+    <div class="grid g4" id="kpis"></div>
+    <h3 style="font-size:15px;font-weight:650;margin:26px 0 12px">Qué está pasando</h3>
+    <div id="alertas"></div>
+  </section>
+
+  <section id="curva">
+    <div class="sec-h"><h2>Curva del ciclo</h2><span class="why">dónde muere cada anuncio</span></div>
+    <p class="sec-note">Costo por conversación según el día de vida del anuncio, no según la fecha. Así se ven
+      superpuestos los ciclos y se nota si la caída llega siempre en el mismo punto. La franja verde es la zona
+      sana (≤ $6) y la roja el territorio en el que ya se está tirando dinero (&gt; $12).</p>
+    <div class="card"><div id="c-curva"></div><div class="legend" id="l-curva"></div></div>
+    <div class="grid g2" style="margin-top:14px">
+      <div class="card"><h3>Frecuencia acumulada por día de ciclo</h3><div id="c-frec"></div>
+        <p class="muted" style="margin:10px 0 0">La línea punteada marca 1.9, el punto en el que los tres ciclos
+          anteriores dejaron de rendir. Predice el agotamiento mejor que el alcance absoluto.</p></div>
+      <div class="card"><h3>Embudo: de clic a conversación</h3><div id="c-embudo"></div>
+        <p class="muted" style="margin:10px 0 0">Porcentaje de clics en el enlace que terminan en conversación.
+          Cuando esto se desploma, el público sigue haciendo clic pero ya no escribe.</p></div>
+    </div>
+  </section>
+
+  <section id="linea">
+    <div class="sec-h"><h2>Línea de tiempo</h2><span class="why">gasto y resultados por fecha</span></div>
+    <p class="sec-note">Barras = gasto diario de las dos campañas. Línea = conversaciones. Cuando las barras se
+      mantienen y la línea baja, el dinero sigue saliendo pero ya no compra nada.</p>
+    <div class="card"><div id="c-linea"></div><div class="legend" id="l-linea"></div></div>
+  </section>
+
+  <section id="ciclos">
+    <div class="sec-h"><h2>Comparar ciclos</h2><span class="why">¿vamos mejorando o empeorando?</span></div>
+    <p class="sec-note" id="ciclos-note"></p>
+    <div class="tw" style="margin-bottom:14px"><table id="t-ciclos"></table></div>
+    <div class="card"><h3>Costo por conversación de cada campaña, en orden cronológico</h3><div id="c-barras"></div></div>
+  </section>
+
+  <section id="patrones">
+    <div class="sec-h"><h2>Patrones</h2><span class="why">días buenos contra días malos</span></div>
+    <p class="sec-note">Cada día registrado, clasificado por su costo por conversación. Sirve para separar lo que
+      es efecto del día de la semana de lo que es efecto del desgaste del anuncio.</p>
+    <div class="grid g2">
+      <div class="card"><h3>Por día de la semana</h3><div id="c-dow"></div>
+        <p class="muted" id="dow-txt" style="margin:10px 0 0"></p></div>
+      <div class="card"><h3>Por día de vida del anuncio</h3><div id="c-dv"></div>
+        <p class="muted" id="dv-txt" style="margin:10px 0 0"></p></div>
+    </div>
+    <div class="grid g2" style="margin-top:14px">
+      <div class="card"><h3>Los 5 mejores días</h3><div class="tw" style="border:none"><table id="t-best"></table></div></div>
+      <div class="card"><h3>Los 5 peores días</h3><div class="tw" style="border:none"><table id="t-worst"></table></div></div>
+    </div>
+  </section>
+
+  <section id="dias">
+    <div class="sec-h"><h2>Día a día</h2><span class="why">el dato crudo</span></div>
+    <p class="sec-note">Todo lo que Meta reportó por día. <span class="v-dim">Impresiones</span> y
+      <span class="v-dim">clic→chat</span> se calculan a partir de las demás columnas.</p>
+    <div class="tw"><table id="t-dias"></table></div>
+    <div id="huecos" style="margin-top:14px"></div>
+  </section>
+
+  <section id="aprendizajes">
+    <div class="sec-h"><h2>Aprendizajes</h2><span class="why">lo que ya no hay que volver a descubrir</span></div>
+    <p class="sec-note">Cada uno salió de un dato concreto. Los marcados como <span class="tag warn">vigilar</span>
+      son configuraciones que se rompen solas y hay que revisar en cada relanzamiento.</p>
+    <div id="aprend"></div>
+  </section>
+
+  <section id="revision">
+    <div class="sec-h"><h2>Revisión antes de publicar</h2><span class="why">la lista de siempre</span></div>
+    <p class="sec-note">Repasar esto cada vez que se lance un ciclo nuevo. Los tres primeros han fallado antes y
+      cuestan conversaciones completas.</p>
+    <div class="card"><ul class="clean" id="check"></ul></div>
+  </section>
+
+  <section id="organico">
+    <div class="sec-h"><h2>Canal orgánico</h2><span class="why">lo que no se evapora al apagar la pauta</span></div>
+    <p class="sec-note" id="org-note"></p>
+    <div class="grid g4" id="org-kpis"></div>
+    <div class="card" style="margin-top:14px"><h3>Diagnóstico</h3><p class="muted" id="org-diag" style="margin:0"></p></div>
+  </section>
+
+  <section id="pendientes">
+    <div class="sec-h"><h2>Pendientes</h2><span class="why">ordenados por impacto contra esfuerzo</span></div>
+    <div class="card"><ul class="clean" id="pend"></ul></div>
+  </section>
+
+  <footer>
+    <p style="margin:0 0 6px">Datos leídos del Administrador de Anuncios de la cuenta
+      <code id="f-cuenta"></code>. Meta no reporta el día en curso: la tabla siempre llega hasta ayer.</p>
+    <p style="margin:0">Para cargar un día nuevo se edita <code>data/pautas.js</code> y se hace push.
+      Todo lo demás — semáforos, alertas, gráficos y patrones — se recalcula solo.</p>
+  </footer>
+</div>
+
+<script src="data/pautas.js"></script>
+<script>
+(function(){
+"use strict";
+const D = window.DATOS, U = D.umbrales;
+
+/* ---------------- utilidades ---------------- */
+const $ = s => document.querySelector(s);
+const el = (t,c,h) => { const n=document.createElement(t); if(c)n.className=c; if(h!=null)n.innerHTML=h; return n; };
+const money = v => v==null?"—":"$"+v.toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2});
+const money0 = v => v==null?"—":"$"+Math.round(v).toLocaleString("es-MX");
+const num = v => v==null?"—":v.toLocaleString("es-MX");
+const pct = v => v==null?"—":v.toFixed(1)+"%";
+const DOW = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+const MES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+function parse(f){ const [y,m,d]=f.split("-").map(Number); return {y,m,d,js:new Date(Date.UTC(y,m-1,d))}; }
+function dow(f){ return DOW[parse(f).js.getUTCDay()]; }
+function corto(f){ const p=parse(f); return p.d+" "+MES[p.m-1]; }
+function esFinde(f){ const d=parse(f).js.getUTCDay(); return d===0||d===6; }
+
+/* Clasificación de un costo por conversación */
+function nivel(c){
+  if(c==null) return "dim";
+  if(c<=U.costo_conv_bueno) return "ok";
+  if(c<=U.costo_conv_alerta) return "warn";
+  return "bad";
+}
+const CLS = {ok:"v-ok",warn:"v-warn",bad:"v-bad",dim:"v-dim"};
+
+/* ---------------- enriquecer datos ---------------- */
+const campById = {};
+D.campanas.forEach(c => campById[c.id]=c);
+
+const dias = D.dias.map(d => {
+  const c = campById[d.campana];
+  const o = Object.assign({}, d);
+  o.uni = c.uni; o.ciclo = c.ciclo; o.creativo = c.nombre;
+  o.costo = d.conv>0 ? d.gasto/d.conv : null;
+  o.impresiones = (d.alcance!=null && d.frec!=null) ? Math.round(d.alcance*d.frec) : null;
+  o.clicChat = (d.clics && d.clics>0) ? (d.conv/d.clics*100) : null;
+  o.dow = dow(d.fecha); o.finde = esFinde(d.fecha);
+  return o;
+}).sort((a,b)=> a.fecha<b.fecha?-1: a.fecha>b.fecha?1: a.campana<b.campana?-1:1);
+
+/* fechas únicas */
+const fechas = [...new Set(dias.map(d=>d.fecha))].sort();
+
+/* agrupar por ciclo */
+const ciclos = {};
+D.campanas.forEach(c=>{
+  if(!ciclos[c.ciclo]) ciclos[c.ciclo]={nombre:c.ciclo, camps:[], conv:0, gasto:0, alcance:0, inicio:null, fin:null};
+  const g=ciclos[c.ciclo]; g.camps.push(c); g.conv+=c.conv||0; g.gasto+=c.gasto||0; g.alcance+=c.alcance||0;
+  if(c.inicio && (!g.inicio||c.inicio<g.inicio)) g.inicio=c.inicio;
+  if(c.fin && (!g.fin||c.fin>g.fin)) g.fin=c.fin;
+});
+const cicloOrden = ["Ciclo 0","Ciclo A","Ciclo B","Ciclo C","Sin fechar"];
+const ciclosArr = cicloOrden.filter(k=>ciclos[k]).map(k=>{
+  const g=ciclos[k]; g.costo = g.conv>0 ? g.gasto/g.conv : null; return g;
+});
+
+const COLOR = {"Ciclo 0":"#64748b","Ciclo A":"#34d399","Ciclo B":"#fbbf24","Ciclo C":"#f87171","Sin fechar":"#a78bfa"};
+
+/* campaña activa */
+const activa = D.campanas.find(c=>c.estado==="Activa");
+const diasActiva = dias.filter(d=>d.campana===activa.id);
+const ultimo = diasActiva[diasActiva.length-1];
+const previo = diasActiva.length>1 ? diasActiva[diasActiva.length-2] : null;
+
+/* ============ SVG mínimo ============ */
+const NS="http://www.w3.org/2000/svg";
+function svg(w,h){ const s=document.createElementNS(NS,"svg"); s.setAttribute("viewBox",`0 0 ${w} ${h}`);
+  s.setAttribute("class","chart"); s.setAttribute("preserveAspectRatio","xMidYMid meet"); return s; }
+function mk(t,a){ const n=document.createElementNS(NS,t); for(const k in a) n.setAttribute(k,a[k]); return n; }
+function txt(s,x,y,t,a){ const n=mk("text",Object.assign({x,y},a||{})); n.textContent=t; s.appendChild(n); return n; }
+
+/* Gráfico de líneas genérico.
+   series: [{nombre,color,dash,puntos:[{x,y,etq}]}]  x numérico */
+function lineChart(host,series,o){
+  o=o||{};
+  const W=o.W||760, H=o.H||300, mL=o.mL||48, mR=o.mR||14, mT=18, mB=34;
+  const iw=W-mL-mR, ih=H-mT-mB;
+  const xs=series.flatMap(s=>s.puntos.map(p=>p.x)), ys=series.flatMap(s=>s.puntos.map(p=>p.y));
+  const x0=o.x0!=null?o.x0:Math.min(...xs), x1=o.x1!=null?o.x1:Math.max(...xs);
+  const y0=0, y1=o.y1!=null?o.y1:Math.max(...ys)*1.12;
+  const X=v=> mL + (x1===x0?iw/2:(v-x0)/(x1-x0)*iw);
+  /* Los valores que se salen del eje se pegan al tope en vez de dibujarse
+     fuera del recuadro: abajo del gráfico se lista cuáles son. */
+  const Y=v=> mT + ih - (Math.min(v,y1)-y0)/(y1-y0)*ih;
+  const s=svg(W,H);
+
+  /* bandas de referencia */
+  (o.bandas||[]).forEach(b=>{
+    s.appendChild(mk("rect",{x:mL,y:Y(Math.min(b.hasta,y1)),width:iw,
+      height:Math.max(0,Y(b.desde)-Y(Math.min(b.hasta,y1))),fill:b.color,opacity:b.op||.07}));
+  });
+
+  const ticks=o.yticks||5;
+  for(let i=0;i<=ticks;i++){
+    const v=y0+(y1-y0)*i/ticks, y=Y(v);
+    s.appendChild(mk("line",{x1:mL,x2:W-mR,y1:y,y2:y,class:"grid-l"}));
+    txt(s,mL-8,y+4,(o.fy||(n=>n.toFixed(0)))(v),{"text-anchor":"end",class:"yl"});
+  }
+  s.appendChild(mk("line",{x1:mL,x2:W-mR,y1:Y(0),y2:Y(0),class:"axis"}));
+
+  (o.xlabels||[]).forEach(l=> txt(s,X(l.x),H-12,l.t,{"text-anchor":"middle"}));
+
+  series.forEach(sr=>{
+    const pts=sr.puntos.filter(p=>p.y!=null);
+    if(pts.length>1){
+      const d=pts.map((p,i)=>(i?"L":"M")+X(p.x).toFixed(1)+" "+Y(p.y).toFixed(1)).join(" ");
+      s.appendChild(mk("path",{d,fill:"none",stroke:sr.color,"stroke-width":o.sw||2.4,
+        "stroke-linecap":"round","stroke-linejoin":"round","stroke-dasharray":sr.dash||"none"}));
+    }
+    pts.forEach(p=>{
+      const tope = p.y>y1;
+      const c=mk("circle",{cx:X(p.x),cy:Y(p.y),r:tope?(o.r||3.6)+1:(o.r||3.6),
+        fill:tope?sr.color:"#0d0f14",stroke:sr.color,"stroke-width":2.2});
+      const ti=document.createElementNS(NS,"title");
+      ti.textContent=(p.etq||"")+(tope?"\n(fuera de escala)":""); c.appendChild(ti);
+      s.appendChild(c);
+    });
+  });
+
+  if(o.ylabel) txt(s,12,mT+ih/2,o.ylabel,{transform:`rotate(-90 12 ${mT+ih/2})`,"text-anchor":"middle"});
+  host.innerHTML=""; host.appendChild(s);
+}
+
+/* Barras verticales (una serie, opcionalmente con línea superpuesta) */
+function barChart(host,items,o){
+  o=o||{};
+  const W=o.W||760,H=o.H||300,mL=o.mL||48,mR=o.mR||(o.linea?46:14),mT=18,mB=o.mB||46;
+  const iw=W-mL-mR, ih=H-mT-mB, s=svg(W,H);
+  const y1=o.y1!=null?o.y1:Math.max(...items.map(i=>i.v))*1.15;
+  const Y=v=>mT+ih-(v/y1)*ih;
+  const bw=iw/items.length;
+  for(let i=0;i<=4;i++){ const v=y1*i/4,y=Y(v);
+    s.appendChild(mk("line",{x1:mL,x2:W-mR,y1:y,y2:y,class:"grid-l"}));
+    txt(s,mL-8,y+4,(o.fy||(n=>n.toFixed(0)))(v),{"text-anchor":"end",class:"yl"}); }
+  items.forEach((it,i)=>{
+    const w=Math.min(bw*.64,52), x=mL+bw*i+(bw-w)/2, h=Math.max(1,ih-(Y(it.v)-mT));
+    const r=mk("rect",{x,y:Y(it.v),width:w,height:h,rx:4,fill:it.color||"#60a5fa",opacity:it.op||.9});
+    const ti=document.createElementNS(NS,"title"); ti.textContent=it.etq||""; r.appendChild(ti); s.appendChild(r);
+    if(o.valores!==false) txt(s,x+w/2,Y(it.v)-7,(o.fv||o.fy||(n=>n.toFixed(0)))(it.v),{"text-anchor":"middle","font-size":"10.5"});
+    (it.etiqueta||"").split("\n").forEach((ln,k)=> txt(s,mL+bw*i+bw/2,H-mB+18+k*13,ln,{"text-anchor":"middle"}));
+  });
+  if(o.linea){
+    const l1=Math.max(...o.linea.map(v=>v||0))*1.2||1;
+    const LY=v=>mT+ih-(v/l1)*ih;
+    const pts=o.linea.map((v,i)=>({x:mL+bw*i+bw/2,y:v==null?null:LY(v)})).filter(p=>p.y!=null);
+    if(pts.length>1) s.appendChild(mk("path",{d:pts.map((p,i)=>(i?"L":"M")+p.x.toFixed(1)+" "+p.y.toFixed(1)).join(" "),
+      fill:"none",stroke:o.lineaColor||"#f87171","stroke-width":2.4,"stroke-linejoin":"round"}));
+    pts.forEach(p=> s.appendChild(mk("circle",{cx:p.x,cy:p.y,r:3.4,fill:"#0d0f14",stroke:o.lineaColor||"#f87171","stroke-width":2.2})));
+    for(let i=0;i<=4;i++){ const v=l1*i/4; txt(s,W-mR+8,LY(v)+4,Math.round(v),{"text-anchor":"start",class:"yl",fill:o.lineaColor||"#f87171"}); }
+  }
+  host.innerHTML=""; host.appendChild(s);
+}
+function legend(host,items){
+  host.innerHTML = items.map(i=>
+    `<span style="color:${i.color}"><i class="${i.dash?'dash':''}" style="background:${i.color}"></i><span style="color:var(--tx2)">${i.t}</span></span>`
+  ).join("");
+}
+
+/* ============================================================
+   1. HOY
+   ============================================================ */
+$("#sub").textContent = `Cuenta ${D.meta.cuenta} · datos hasta el ${corto(D.meta.ultimo_dia_con_datos)} · actualizado el ${corto(D.meta.actualizado)}`;
+$("#f-cuenta").textContent = D.meta.cuenta;
+
+const diaCiclo = ultimo.dia_ciclo;
+const restantes = U.vida_util_dias - diaCiclo;
+$("#hoy-note").innerHTML =
+  `Corre <b>${activa.ciclo}</b> con el creativo «${activa.nombre}» a ${money0(activa.presupuesto_diario)} diarios. ` +
+  `El último día reportado es el <b>${corto(ultimo.fecha)}</b>, día ${diaCiclo} de vida del anuncio. ` +
+  (restantes>0 ? `Quedan ${restantes} día${restantes>1?"s":""} antes del corte de los ${U.vida_util_dias} días.`
+               : `Ya pasó la ventana de ${U.vida_util_dias} días: toca cortar y rotar creativo.`);
+
+const kpis=[
+  {lbl:"Costo por conversación", val:money(ultimo.costo), cls:nivel(ultimo.costo),
+   foot: previo ? `ayer ${money(previo.costo)} · meta ≤ ${money0(U.costo_conv_bueno)}` : `meta ≤ ${money0(U.costo_conv_bueno)}`},
+  {lbl:"CTR del enlace", val:ultimo.ctr!=null?ultimo.ctr.toFixed(2)+"%":"—",
+   cls: ultimo.ctr==null?"":(ultimo.ctr>=U.ctr_minimo?"ok":"bad"), foot:`mínimo ${U.ctr_minimo}%`},
+  {lbl:"Clic → chat", val: ultimo.clicChat!=null?ultimo.clicChat.toFixed(1)+"%":"—",
+   cls: ultimo.clicChat==null?"":(ultimo.clicChat>=U.clic_chat_bueno?"ok":ultimo.clicChat>=U.clic_chat_critico?"warn":"bad"),
+   foot:`sano ≥ ${U.clic_chat_bueno}%`},
+  {lbl:"Frecuencia acumulada", val: activa.frecuencia.toFixed(2), cls: activa.frecuencia>=U.frecuencia_agotamiento?"bad":"info",
+   foot:`agotamiento en ${U.frecuencia_agotamiento} · alcance ${num(activa.alcance)}`}
+];
+$("#kpis").innerHTML = kpis.map(k=>
+  `<div class="kpi ${k.cls}"><div class="lbl">${k.lbl}</div><div class="val">${k.val}</div><div class="foot">${k.foot}</div></div>`
+).join("");
+
+/* --- motor de alertas --- */
+const alertas=[];
+function A(t,tit,txt,fix){ alertas.push({t,tit,txt,fix}); }
+
+if(ultimo.costo!=null){
+  if(ultimo.costo>U.costo_conv_malo)
+    A("bad","El costo por conversación está fuera de rango",
+      `${money(ultimo.costo)} el ${corto(ultimo.fecha)}, contra la meta de ${money0(U.costo_conv_bueno)}. Es ${(ultimo.costo/U.costo_conv_bueno).toFixed(1)}× lo que debería costar.`,
+      "Revisar el creativo antes de dejar correr otro día completo a este precio.");
+  else if(ultimo.costo>U.costo_conv_alerta)
+    A("warn","El costo por conversación va subiendo",
+      `${money(ultimo.costo)} el ${corto(ultimo.fecha)}. Pasó el umbral de ${money0(U.costo_conv_alerta)}.`,
+      "Vigilar mañana: si vuelve a subir, cortar.");
+  else A("ok","El costo por conversación está en rango",`${money(ultimo.costo)} el ${corto(ultimo.fecha)}.`,null);
+}
+if(ultimo.ctr!=null && ultimo.ctr<U.ctr_minimo){
+  const ref = dias.filter(d=>d.ctr!=null && d.dia_ciclo===1 && d.campana!==activa.id)[0];
+  A("bad","El CTR nunca levantó",
+    `${ultimo.ctr.toFixed(2)}% contra el mínimo de ${U.ctr_minimo}%.` +
+    (ref?` El ${activa.ciclo} arrancó en ${dias.find(d=>d.campana===activa.id&&d.dia_ciclo===1).ctr.toFixed(2)}% cuando el ${campById[ref.campana].ciclo} arrancó en ${ref.ctr.toFixed(2)}%.`:""),
+    "Esto no es saturación de público: el creativo no engancha desde el día 1. Cambiar imagen, no sólo texto.");
+}
+if(ultimo.clicChat!=null && ultimo.clicChat<U.clic_chat_bueno){
+  A(ultimo.clicChat<U.clic_chat_critico?"bad":"warn","Menos clics terminan en conversación",
+    `${ultimo.clicChat.toFixed(1)}% de los clics acabaron en chat, contra el ${U.clic_chat_bueno}% sano.`,
+    ultimo.clicChat<U.clic_chat_critico
+      ? "Dos días seguidos por debajo del 20% significa apagar."
+      : "Verificar que el destino esté en WhatsApp manual y no en automático.");
+}
+if(diaCiclo>=U.vida_util_dias)
+  A("warn",`El anuncio va en su día ${diaCiclo}`,
+    `La vida útil observada es de ${U.vida_util_dias} días. A partir de aquí el costo por conversación se multiplica.`,
+    "Programar el corte y preparar la imagen nueva del siguiente ciclo.");
+else
+  A("ok",`Día ${diaCiclo} de ${U.vida_util_dias}`,`Quedan ${restantes} día${restantes>1?"s":""} de ventana útil.`,null);
+
+if(activa.frecuencia>=U.frecuencia_agotamiento)
+  A("bad","El público ya está saturado",`Frecuencia de ${activa.frecuencia.toFixed(2)}, en la zona en la que murieron los ciclos anteriores.`,
+    "Cortar: seguir pagando aquí es repetirle el mismo anuncio a quien ya lo ignoró.");
+
+if(previo && previo.costo && ultimo.costo){
+  const cambio=(ultimo.costo-previo.costo)/previo.costo*100;
+  if(cambio<-15) A("ok","Va mejorando",`El costo bajó ${Math.abs(cambio).toFixed(0)}% respecto a ${corto(previo.fecha)}.`,null);
+  else if(cambio>15) A("warn","Va empeorando",`El costo subió ${cambio.toFixed(0)}% respecto a ${corto(previo.fecha)}.`,null);
+}
+if(activa.presupuesto_diario>100)
+  A("warn","El presupuesto está por encima de los $100 de siempre",
+    `Va en ${money0(activa.presupuesto_diario)} diarios, ${Math.round((activa.presupuesto_diario/100-1)*100)}% más que en los ciclos anteriores, y el costo por conversación es peor.`,
+    "Más presupuesto sobre un creativo que no engancha sólo acelera el gasto. Bajar a $100 mientras se arregla el anuncio.");
+
+const ICO={bad:"●",warn:"●",ok:"●"};
+$("#alertas").innerHTML = alertas.map(a=>
+  `<div class="alert ${a.t}"><div class="ico" style="color:var(--${a.t==='bad'?'bad':a.t==='warn'?'warn':'ok'})">${ICO[a.t]}</div>
+   <div><b>${a.tit}</b><p>${a.txt}</p>${a.fix?`<div class="fix">${a.fix}</div>`:""}</div></div>`).join("");
+
+/* ============================================================
+   2. CURVA DEL CICLO
+   ============================================================ */
+const conDesglose = D.campanas.filter(c => dias.some(d=>d.campana===c.id));
+const seriesCurva = conDesglose.map(c=>{
+  const ds = dias.filter(d=>d.campana===c.id && d.costo!=null);
+  return { nombre:`${c.ciclo} · ${c.uni}`, color:COLOR[c.ciclo], dash: c.uni==="UACH"?"5 4":null,
+    puntos: ds.map(d=>({x:d.dia_ciclo, y:d.costo,
+      etq:`${c.ciclo} ${c.uni} · día ${d.dia_ciclo} (${d.dow} ${corto(d.fecha)})\n${money(d.costo)} · ${d.conv} conv · ${money(d.gasto)}`})) };
+}).filter(s=>s.puntos.length);
+
+lineChart($("#c-curva"), seriesCurva, {
+  H:320, y1:20, yticks:5, fy:v=>"$"+v.toFixed(0), ylabel:"Costo por conversación",
+  x0:1, x1:6, xlabels:[1,2,3,4,5,6].map(x=>({x,t:"Día "+x})),
+  bandas:[{desde:0,hasta:U.costo_conv_bueno,color:"#34d399",op:.08},
+          {desde:U.costo_conv_malo,hasta:20,color:"#f87171",op:.08}]
+});
+legend($("#l-curva"), seriesCurva.map(s=>({color:s.color,t:s.nombre,dash:!!s.dash}))
+  .concat([{color:"#34d399",t:"zona sana ≤ $6"},{color:"#f87171",t:"zona roja > $12"}]));
+
+/* nota: el 15 ago tuvo $45.32 y se sale del eje — se avisa */
+const fuera = dias.filter(d=>d.costo>20);
+if(fuera.length){
+  const n=el("p","muted",`El eje se corta en $20 para que se vea el resto. Fuera de escala: ` +
+    fuera.map(d=>`<b>${corto(d.fecha)}</b> (${campById[d.campana].uni}) a ${money(d.costo)}`).join(", ")+".");
+  n.style.margin="10px 0 0"; $("#c-curva").parentNode.appendChild(n);
+}
+
+/* frecuencia acumulada por día de ciclo */
+const seriesFrec = conDesglose.map(c=>{
+  const ds=dias.filter(d=>d.campana===c.id && d.frec!=null);
+  let acc=0, alc=0;
+  const puntos = ds.map(d=>{ alc+=d.alcance; acc+=d.alcance*d.frec;
+    return {x:d.dia_ciclo, y:alc>0?acc/alc:null, etq:`${c.ciclo} ${c.uni} · día ${d.dia_ciclo}\nfrecuencia media ${(acc/alc).toFixed(2)}`}; });
+  return {nombre:`${c.ciclo} · ${c.uni}`, color:COLOR[c.ciclo], dash:c.uni==="UACH"?"5 4":null, puntos};
+}).filter(s=>s.puntos.length);
+lineChart($("#c-frec"), seriesFrec, {W:560,H:250,y1:2.2,yticks:4,fy:v=>v.toFixed(1),
+  x0:1,x1:6,xlabels:[1,2,3,4,5,6].map(x=>({x,t:x})),
+  bandas:[{desde:U.frecuencia_agotamiento,hasta:2.2,color:"#f87171",op:.1}]});
+
+/* embudo clic → chat */
+const seriesEmb = conDesglose.map(c=>{
+  const ds=dias.filter(d=>d.campana===c.id && d.clicChat!=null);
+  return {nombre:`${c.ciclo} · ${c.uni}`, color:COLOR[c.ciclo], dash:c.uni==="UACH"?"5 4":null,
+    puntos: ds.map(d=>({x:d.dia_ciclo,y:d.clicChat,etq:`${corto(d.fecha)} · ${d.conv} de ${d.clics} clics = ${d.clicChat.toFixed(1)}%`}))};
+}).filter(s=>s.puntos.length);
+lineChart($("#c-embudo"), seriesEmb, {W:560,H:250,y1:70,yticks:4,fy:v=>v.toFixed(0)+"%",
+  x0:1,x1:6,xlabels:[1,2,3,4,5,6].map(x=>({x,t:x})),
+  bandas:[{desde:U.clic_chat_bueno,hasta:70,color:"#34d399",op:.08},
+          {desde:0,hasta:U.clic_chat_critico,color:"#f87171",op:.08}]});
+
+/* ============================================================
+   3. LÍNEA DE TIEMPO
+   ============================================================ */
+const porFecha = fechas.map(f=>{
+  const ds=dias.filter(d=>d.fecha===f);
+  return {f, gasto:ds.reduce((a,b)=>a+b.gasto,0), conv:ds.reduce((a,b)=>a+b.conv,0),
+          ciclo: campById[ds[0].campana].ciclo};
+});
+barChart($("#c-linea"), porFecha.map(p=>({
+    v:p.gasto, color:COLOR[p.ciclo], op:.85,
+    etiqueta: dow(p.f)+"\n"+corto(p.f),
+    etq:`${dow(p.f)} ${corto(p.f)} · ${p.ciclo}\ngasto ${money(p.gasto)} · ${p.conv} conversaciones`
+  })), {H:310, fy:v=>"$"+Math.round(v), fv:v=>"$"+Math.round(v),
+        linea:porFecha.map(p=>p.conv), lineaColor:"#60a5fa"});
+legend($("#l-linea"), ciclosArr.filter(c=>porFecha.some(p=>p.ciclo===c.nombre))
+  .map(c=>({color:COLOR[c.nombre],t:"Gasto · "+c.nombre}))
+  .concat([{color:"#60a5fa",t:"Conversaciones (eje derecho)"}]));
+
+/* ============================================================
+   4. COMPARAR CICLOS
+   ============================================================ */
+const fechados = ciclosArr.filter(c=>c.nombre!=="Sin fechar");
+const peor = fechados[fechados.length-1], mejor = fechados.reduce((a,b)=> (b.costo<a.costo?b:a));
+$("#ciclos-note").innerHTML =
+  `El mejor ciclo hasta ahora es el <b>${mejor.nombre}</b> a ${money(mejor.costo)} por conversación. ` +
+  `El actual va en ${money(peor.costo)}, un <b>${Math.round((peor.costo/mejor.costo-1)*100)}% más caro</b>. ` +
+  `Es un deterioro sostenido: cada ciclo ha rendido peor que el anterior desde el ${fechados[1].nombre}.`;
+
+let th=`<thead><tr><th>Ciclo</th><th>Fechas</th><th>Campañas</th><th>Conv.</th><th>Gasto</th><th>Costo x conv.</th><th>Alcance</th><th>Contra el mejor</th></tr></thead><tbody>`;
+fechados.forEach(c=>{
+  const delta = c.costo/mejor.costo-1;
+  th+=`<tr><td><span class="tag" style="color:${COLOR[c.nombre]};border-color:${COLOR[c.nombre]}55">${c.nombre}</span></td>
+   <td class="num v-dim">${c.inicio?corto(c.inicio):"—"}${c.fin?" – "+corto(c.fin):c.inicio?" – hoy":""}</td>
+   <td class="num v-dim">${c.camps.map(x=>x.uni).join(" + ")}</td>
+   <td class="num">${c.conv}</td><td class="num">${money(c.gasto)}</td>
+   <td class="num ${CLS[nivel(c.costo)]}"><b>${money(c.costo)}</b></td>
+   <td class="num v-dim">${num(c.alcance)||"—"}</td>
+   <td class="num ${delta<=0.001?'v-ok':delta>.5?'v-bad':'v-warn'}">${delta<=0.001?"—":"+"+Math.round(delta*100)+"%"}</td></tr>`;
+});
+const tot = fechados.reduce((a,c)=>({conv:a.conv+c.conv,gasto:a.gasto+c.gasto}),{conv:0,gasto:0});
+th+=`</tbody><tfoot><tr><td>Total</td><td></td><td></td><td class="num">${tot.conv}</td>
+ <td class="num">${money(tot.gasto)}</td><td class="num">${money(tot.gasto/tot.conv)}</td><td></td><td></td></tr></tfoot>`;
+$("#t-ciclos").innerHTML=th;
+
+const cronologicas = D.campanas.filter(c=>c.inicio).sort((a,b)=>a.inicio<b.inicio?-1:1);
+barChart($("#c-barras"), cronologicas.map(c=>({
+  v:c.costo_conv, color: c.costo_conv<=U.costo_conv_bueno?"#34d399":c.costo_conv<=U.costo_conv_alerta?"#fbbf24":"#f87171",
+  etiqueta:c.uni+"\n"+c.ciclo, etq:`${c.ciclo} · ${c.uni}\n«${c.nombre}»\n${money(c.costo_conv)} · ${c.conv} conv · ${money(c.gasto)}`
+})), {H:280, fy:v=>"$"+v.toFixed(0), fv:v=>"$"+v.toFixed(2)});
+
+/* ============================================================
+   5. PATRONES
+   ============================================================ */
+const conCosto = dias.filter(d=>d.costo!=null);
+
+/* por día de la semana */
+const byDow={};
+conCosto.forEach(d=>{ (byDow[d.dow]=byDow[d.dow]||[]).push(d); });
+const dowOrden=["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"].filter(k=>byDow[k]);
+barChart($("#c-dow"), dowOrden.map(k=>{
+  const g=byDow[k], m=g.reduce((a,b)=>a+b.gasto,0)/g.reduce((a,b)=>a+b.conv,0);
+  return {v:m, color:(k==="Sáb"||k==="Dom")?"#a78bfa":"#60a5fa", etiqueta:k,
+    etq:`${k} · ${g.length} registro${g.length>1?"s":""}\n${money(m)} promedio ponderado`};
+}), {W:560,H:250,fy:v=>"$"+v.toFixed(0),fv:v=>"$"+v.toFixed(1)});
+
+/* El promedio crudo de fin de semana está contaminado por los días en los que
+   el creativo ya estaba agotado. Se compara también sólo dentro de la ventana
+   útil, y se dice cuántos registros sostienen cada número. */
+function prom(arr){ const c=arr.reduce((a,b)=>a+b.conv,0); return c>0?arr.reduce((a,b)=>a+b.gasto,0)/c:null; }
+const mFinde=prom(conCosto.filter(d=>d.finde)), mSem=prom(conCosto.filter(d=>!d.finde));
+const fV=conCosto.filter(d=>d.finde && d.dia_ciclo<=U.vida_util_dias);
+const sV=conCosto.filter(d=>!d.finde && d.dia_ciclo<=U.vida_util_dias);
+const ciclosFinde=[...new Set(fV.map(d=>d.ciclo))];
+$("#dow-txt").innerHTML =
+  `Con todos los días, el fin de semana sale a ${money(mFinde)} contra ${money(mSem)} entre semana. ` +
+  `Pero ese promedio lo carga el <b>sábado 15</b>, que costó ${money(45.32)} porque ese día se agotó el creativo de UAEH: ` +
+  `el mismo sábado, UACH costó ${money(13.21)}, en línea con su ciclo. Si hubiera sido el día, las dos habrían caído.` +
+  `<br><br>Dejando sólo días dentro de la ventana de ${U.vida_util_dias}: ${money(prom(fV))} el fin de semana ` +
+  `(${fV.length} registro${fV.length===1?"":"s"}) contra ${money(prom(sV))} entre semana (${sV.length}). ` +
+  (ciclosFinde.length===1
+    ? `<b>Todavía no se puede concluir nada</b>: los únicos fines de semana con el anuncio fresco son del ${ciclosFinde[0]}, que ya viene caro por su creativo. Para separarlo hace falta un ciclo que arranque entre semana y cruce el sábado en buena forma.`
+    : `La muestra ya cubre ${ciclosFinde.length} ciclos, así que la comparación empieza a ser confiable.`);
+
+/* por día de vida */
+const byDv={};
+conCosto.forEach(d=>{ (byDv[d.dia_ciclo]=byDv[d.dia_ciclo]||[]).push(d); });
+const dvOrden=Object.keys(byDv).map(Number).sort((a,b)=>a-b);
+barChart($("#c-dv"), dvOrden.map(k=>{
+  const g=byDv[k], m=g.reduce((a,b)=>a+b.gasto,0)/g.reduce((a,b)=>a+b.conv,0);
+  return {v:m, color: k<=U.vida_util_dias?"#34d399":"#f87171", etiqueta:"Día "+k,
+    etq:`Día ${k} de vida · ${g.length} registro${g.length>1?"s":""}\n${money(m)} promedio ponderado`};
+}), {W:560,H:250,fy:v=>"$"+v.toFixed(0),fv:v=>"$"+v.toFixed(1)});
+
+const dentro=conCosto.filter(d=>d.dia_ciclo<=U.vida_util_dias), fuera2=conCosto.filter(d=>d.dia_ciclo>U.vida_util_dias);
+const mD=dentro.reduce((a,b)=>a+b.gasto,0)/dentro.reduce((a,b)=>a+b.conv,0);
+const mF=fuera2.length?fuera2.reduce((a,b)=>a+b.gasto,0)/fuera2.reduce((a,b)=>a+b.conv,0):null;
+$("#dv-txt").innerHTML = mF
+  ? `Dentro de los primeros ${U.vida_util_dias} días: ${money(mD)}. A partir del día ${U.vida_util_dias+1}: <b>${money(mF)}</b>, ${(mF/mD).toFixed(1)}× más caro. Ahí está el argumento del corte.`
+  : `Dentro de los primeros ${U.vida_util_dias} días: ${money(mD)}. Todavía no hay días fuera de ventana en esta muestra.`;
+
+/* mejores y peores */
+function tablaDias(sel, arr){
+  let h=`<thead><tr><th>Día</th><th>Campaña</th><th>Conv.</th><th>Costo</th></tr></thead><tbody>`;
+  arr.forEach(d=>{ h+=`<tr><td>${d.dow} ${corto(d.fecha)} <span class="v-dim">· d${d.dia_ciclo}</span></td>
+    <td class="v-dim">${d.uni} ${d.ciclo.replace("Ciclo ","")}</td><td class="num">${d.conv}</td>
+    <td class="num ${CLS[nivel(d.costo)]}"><b>${money(d.costo)}</b></td></tr>`; });
+  $(sel).innerHTML=h+"</tbody>";
+}
+const ord=[...conCosto].sort((a,b)=>a.costo-b.costo);
+tablaDias("#t-best", ord.slice(0,5));
+tablaDias("#t-worst", ord.slice(-5).reverse());
+
+/* ============================================================
+   6. DÍA A DÍA
+   ============================================================ */
+let h=`<thead><tr><th>Fecha</th><th>Campaña</th><th>Día</th><th>Conv.</th><th>Costo x conv.</th><th>Gasto</th>
+ <th>Alcance</th><th>Frec.</th><th>Impr.</th><th>Clics</th><th>CTR</th><th>Clic→chat</th></tr></thead><tbody>`;
+dias.forEach(d=>{
+  h+=`<tr><td>${d.finde?'<span class="v-dim">'+d.dow+'</span>':d.dow} ${corto(d.fecha)}${d.derivado?' <span class="tag">derivado</span>':''}</td>
+   <td><span class="tag" style="color:${COLOR[d.ciclo]};border-color:${COLOR[d.ciclo]}55">${d.ciclo.replace("Ciclo ","")}</span> ${d.uni}</td>
+   <td class="num v-dim">${d.dia_ciclo}</td>
+   <td class="num">${d.conv}</td>
+   <td class="num ${CLS[nivel(d.costo)]}"><b>${money(d.costo)}</b></td>
+   <td class="num">${money(d.gasto)}</td>
+   <td class="num v-dim">${num(d.alcance)}</td>
+   <td class="num v-dim">${d.frec!=null?d.frec.toFixed(2):"—"}</td>
+   <td class="num v-dim">${num(d.impresiones)}</td>
+   <td class="num v-dim">${d.clics!=null?d.clics:"—"}</td>
+   <td class="num ${d.ctr==null?'v-dim':d.ctr>=U.ctr_minimo?'v-ok':'v-bad'}">${d.ctr!=null?d.ctr.toFixed(2)+"%":"—"}</td>
+   <td class="num ${d.clicChat==null?'v-dim':d.clicChat>=U.clic_chat_bueno?'v-ok':d.clicChat>=U.clic_chat_critico?'v-warn':'v-bad'}">${d.clicChat!=null?d.clicChat.toFixed(1)+"%":"—"}</td></tr>`;
+});
+const tg=dias.reduce((a,b)=>a+b.gasto,0), tc=dias.reduce((a,b)=>a+b.conv,0);
+h+=`</tbody><tfoot><tr><td>${dias.length} registros</td><td></td><td></td><td class="num">${tc}</td>
+ <td class="num">${money(tg/tc)}</td><td class="num">${money(tg)}</td>
+ <td colspan="6"></td></tr></tfoot>`;
+$("#t-dias").innerHTML=h;
+
+$("#huecos").innerHTML = D.huecos.map(x=>
+  `<div class="alert"><div class="ico" style="color:var(--tx3)">○</div><div>
+   <b>Sin desglose: ${x.rango}</b><p>${x.motivo}${x.gasto_total?` Se conoce el agregado: ${money(x.gasto_total)} de gasto y ${num(x.alcance_total)} de alcance.`:""}</p></div></div>`
+).join("");
+
+/* ============================================================
+   7. APRENDIZAJES
+   ============================================================ */
+const ETQ={confirmado:["ok","confirmado"],resuelto:["info","resuelto"],nuevo:["info","nuevo"],vigilar:["warn","vigilar"]};
+$("#aprend").innerHTML = D.aprendizajes.map(a=>{
+  const [cls,lbl]=ETQ[a.estado]||["","—"];
+  return `<div class="learn" style="border-left-color:${cls==='ok'?'var(--ok)':cls==='warn'?'var(--warn)':'var(--info)'}">
+    <h4>${a.titulo} <span class="tag ${cls}">${lbl}</span></h4>
+    <p>${a.texto}</p>
+    ${a.matiz?`<div class="matiz"><b>Matiz:</b> ${a.matiz}</div>`:""}
+    <p class="v-dim" style="font-size:12.5px;margin-top:6px">Registrado el ${corto(a.fecha)}</p></div>`;
+}).join("");
+
+/* ============================================================
+   8. REVISIÓN
+   ============================================================ */
+$("#check").innerHTML = D.checklist.map(c=>
+  `<li><span class="mk">${c.critico?'<span style="color:var(--bad)">▲</span>':'○'}</span>
+   <span>${c.texto}${c.critico?' <span class="tag bad">ya falló antes</span>':''}</span></li>`).join("");
+
+/* ============================================================
+   9. ORGÁNICO
+   ============================================================ */
+const P=D.pagina;
+$("#org-note").innerHTML = `Medido el ${corto(P.fecha)}. Toda la visibilidad de la página viene de la pauta:
+  el ${P.pct_no_seguidores}% de las visualizaciones son de gente que no sigue la página.`;
+$("#org-kpis").innerHTML = [
+  {lbl:"Seguidores", val:num(P.seguidores), cls:"", foot:`+${P.seguidores_netos_mes} netos al mes`},
+  {lbl:"Tasa de interacción", val:P.tasa_interaccion+"%", cls:"bad", foot:`${num(P.interacciones)} en ${num(P.vistas)} vistas`},
+  {lbl:"Reels publicados", val:P.reels, cls:P.reels===0?"bad":"ok", foot:"formato con más alcance orgánico"},
+  {lbl:"Instagram", val:P.instagram_conectado?"Conectado":"Sin conectar", cls:P.instagram_conectado?"ok":"bad",
+   foot:"el cambio de mayor impacto y menor esfuerzo"}
+].map(k=>`<div class="kpi ${k.cls}"><div class="lbl">${k.lbl}</div><div class="val">${k.val}</div><div class="foot">${k.foot}</div></div>`).join("");
+$("#org-diag").textContent = P.diagnostico;
+
+/* ============================================================
+   10. PENDIENTES
+   ============================================================ */
+const rank={alto:0,medio:1,bajo:2};
+const pend=[...D.pendientes].sort((a,b)=>
+  (a.estado==="resuelto")-(b.estado==="resuelto") || rank[a.impacto]-rank[b.impacto] || rank[b.esfuerzo]-rank[a.esfuerzo]);
+$("#pend").innerHTML = pend.map(p=>{
+  const ok=p.estado==="resuelto";
+  return `<li><span class="mk">${ok?'<span style="color:var(--ok)">✓</span>':'○'}</span>
+   <span style="${ok?'color:var(--tx3);text-decoration:line-through':''}">${p.texto}</span>
+   <span style="margin-left:auto;display:flex;gap:6px;flex:0 0 auto">
+     ${ok?`<span class="tag ok">resuelto ${corto(p.resuelto_en)}</span>`
+        :`<span class="tag ${p.impacto==='alto'?'bad':''}">impacto ${p.impacto}</span>
+          <span class="tag">esfuerzo ${p.esfuerzo}</span>`}</span></li>`;
+}).join("");
+
+/* ---------- nav activa ---------- */
+const links=[...document.querySelectorAll("#nav a")];
+const secs=links.map(a=>document.querySelector(a.getAttribute("href")));
+const io=new IntersectionObserver(es=>{
+  es.forEach(e=>{ if(e.isIntersecting){
+    links.forEach(l=>l.classList.remove("on"));
+    const i=secs.indexOf(e.target); if(i>=0) links[i].classList.add("on"); }});
+},{rootMargin:"-10% 0px -75% 0px"});
+secs.forEach(s=>s&&io.observe(s));
+})();
+</script>
+</body>
+</html>
