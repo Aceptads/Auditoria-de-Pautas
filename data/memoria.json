@@ -97,6 +97,109 @@
           ]
         }
       }
+    },
+    {
+      "id": "33f04fce-fb96-4281-b7e9-e0835c86b2aa",
+      "fecha": "2026-08-26T01:32:32.625Z",
+      "datos_hasta": null,
+      "pregunta": "Ya entr� el lunes 24. �Se sostiene el atenuante del fin de semana que planteaste ayer?",
+      "modelo": "claude-opus-5",
+      "costo_usd": 0.4880715,
+      "duracion_ms": 159547,
+      "resultado": {
+        "titular": "El lunes salió peor que el domingo: no era el fin de semana, es el creativo",
+        "estado": "critico",
+        "resumen": "El atenuante que planteé ayer no se sostiene. El ciclo C cerró el lunes 24 a $18.28 por conversación, 42% peor que el domingo, cuando si el problema hubiera sido el fin de semana debía haber mejorado. El ciclo completo va en $15.06 y nunca tuvo un solo día por debajo de $12: no es una curva que decae, es una imagen que ya nadie quiere ver.",
+        "cambios": "Ayer dije que arrancar en sábado sesgaba la comparación del ciclo C contra A y B. Con el lunes ya cargado, esa hipótesis queda descartada: el primer día laborable fue el más caro de los tres. También dije que el costo del ciclo iba en $13.45; con el lunes subió a $15.06. La acción de bajar el presupuesto de $130 a $100 no se aplicó: el lunes gastó $146.22. Y afino lo de ayer sobre «está siendo ignorado»: el CTR sí cayó, pero el dato más duro es el CPM, que subió 85% entre el ciclo A y el C.",
+        "hallazgos": [
+          {
+            "titulo": "El lunes mató el atenuante del fin de semana",
+            "texto": "Si sábado y domingo estuvieran castigando al ciclo C, el lunes tenía que rebotar. Hizo lo contrario: fue el día más caro de los tres. Además la comparación contra los otros ciclos está bien controlada por día de la semana, porque el día 3 del ciclo A cayó en miércoles y el del ciclo B en martes: los tres son días laborables y el ciclo C sale 3 veces más caro.",
+            "evidencia": "UAEH-C3: sáb 22 $15.22 (4 conv / $60.86), dom 23 $12.86 (12 / $154.37), lun 24 $18.28 (8 / $146.22). Día 3 de cada ciclo: A (mié 13) $5.12, B (mar 19) $6.09, C (lun 24) $18.28.",
+            "confianza": "alta"
+          },
+          {
+            "titulo": "El ciclo C no decayó: arrancó muerto",
+            "texto": "El aprendizaje de la vida útil de 4 días supone que el anuncio empieza barato y se encarece. Aquí no hubo nada que decayera. El día 1 ya costó $15.22, por encima del umbral de malo. Esto es la tercera corrida de la misma publicación y confirma con fuerza el aprendizaje 2: reciclar la publicación no la refresca, sólo reinicia el contador de frecuencia mientras el público sigue igual de quemado.",
+            "evidencia": "Peor día del ciclo C ($12.86) sigue por encima del umbral costo_conv_malo de $12. Días 1-3 de cada ciclo: A $4.25 promedio, B $8.10, C $15.06. Alcance acumulado de la misma imagen entre A, B y C: 29,153 personas.",
+            "confianza": "alta"
+          },
+          {
+            "titulo": "Meta ya está cobrando más caro por entregar esta imagen",
+            "texto": "No es sólo que la gente haga menos clic. El costo por mil impresiones subió de forma sostenida en las tres corridas del mismo creativo. Meta abarata la entrega de los anuncios que enganchan y encarece la de los que no, así que el mismo presupuesto compra cada vez menos alcance. Es la parte del problema que ocurre antes del clic y pesa más que lo que pasa después.",
+            "evidencia": "CPM por ciclo (gasto ÷ alcance × frecuencia ÷ 1000): A $19.35, B $24.29, C $35.74, +85% de A a C. CPC: $2.48 → $4.39, +77%. CTR: 0.78% → 0.48%. La tasa clic→chat del ciclo C en sus días 1-2 fue 32.7% (16 conv / 49 clics) contra 41.2% del ciclo A: baja, pero es el efecto menor.",
+            "confianza": "alta"
+          },
+          {
+            "titulo": "Los $130 diarios están acelerando la quema, no comprando resultados",
+            "texto": "El presupuesto se subió 30% y siguió corriendo el lunes sin bajarlo. Comparando los mismos tres primeros días contra el ciclo B, el ciclo C gastó más y trajo menos. Subir presupuesto sobre un creativo cansado obliga a Meta a buscar público peor o a pagar más caro por el mismo, que es exactamente lo que muestra el CPM.",
+            "evidencia": "Días 1-3: ciclo B $315.75 → 39 conv ($8.10). Ciclo C $361.45 → 24 conv ($15.06). 14% más gasto, 38% menos conversaciones. El lunes gastó $146.22 con presupuesto declarado de $130.",
+            "confianza": "alta"
+          },
+          {
+            "titulo": "La frecuencia dejó de servir como semáforo",
+            "texto": "El aprendizaje 4 decía vigilar frecuencia mayor o igual a 1.9 porque los ciclos A y B murieron ahí. El ciclo C está en 1.47 y ya está muerto. El motivo es que Meta cuenta la frecuencia por campaña y cada ciclo nuevo la reinicia en 1.0, pero el hartazgo del público con la misma imagen no se reinicia. Con creativo reciclado el indicador que sí acumula es el alcance total de esa imagen.",
+            "evidencia": "Frecuencia al momento de morir: UAEH-C0 2.10, C1 2.02, C2 1.90, C3 1.47 con costo de $15.06. Alcance acumulado del creativo al cerrar B: 22,273; el ciclo C arrancó caro desde el día 1.",
+            "confianza": "media"
+          },
+          {
+            "titulo": "UACH lleva 4 días apagada y su último día fue el peor de todos",
+            "texto": "Derivando el 21 de agosto por diferencia contra el total de campaña, el cierre de UACH fue mucho peor de lo que sugiere su promedio. No hay reemplazo corriendo, así que ahora mismo tampoco hay caso de control: con una sola campaña activa no puedo separar un efecto de plataforma o de día de un problema del creativo de UAEH.",
+            "evidencia": "UACH-C2 total $498.36 / 32 conv; días 17-20 suman $385.91 / 29 conv. Derivado del 21: $112.45 / 3 conv = $37.48. El día 5 de UAEH-C2 derivado da $12.99 contra $8.99 del día 4, lo que confirma lo que dije ayer sobre el quiebre en el día 5.",
+            "confianza": "media"
+          }
+        ],
+        "acciones": [
+          {
+            "que": "Apaga el ciclo C hoy al cierre y no lo prendas mañana.",
+            "porque": "Hoy es su día 4 y en los dos ciclos anteriores el día 4 siempre salió peor que el día 3. Partiendo de $18.28 del lunes, esperas $20 o más. Los $146 de ayer compraron 8 conversaciones; al costo del ciclo A habrían comprado 28. Cada día extra que lo dejes son unos $145 tirados por 7 u 8 conversaciones.",
+            "urgencia": "hoy"
+          },
+          {
+            "que": "Sube hoy una imagen nueva y crea una publicación nueva con ella. No vuelvas a impulsar la de siempre.",
+            "porque": "Esa imagen lleva 29,153 de alcance acumulado en tres corridas, el CPM subió 85% y el CTR se partió a la mitad. Es el único cambio con el que puedes esperar volver al rango de $6 del ciclo A; con la misma publicación el punto de partida ya es $15.",
+            "urgencia": "hoy"
+          },
+          {
+            "que": "Arranca el siguiente ciclo el lunes 31 con $100 diarios y fecha de fin el jueves 3.",
+            "porque": "El experimento de $130 falló: 14% más gasto y 38% menos conversaciones que el ciclo B a $100 en los mismos tres días. Vuelve a la configuración que dio el mejor resultado histórico y deja que el creativo nuevo sea la única variable que cambia, para poder leerlo.",
+            "urgencia": "esta semana"
+          },
+          {
+            "que": "Prende UACH el mismo lunes 31, con imagen propia y nueva, $100 y 4 días.",
+            "porque": "Lleva apagada desde el 21 y cerró en $37.48 ese último día. Además necesitas el caso de control: con dos campañas corriendo en paralelo puedes distinguir un mal día de la plataforma de un mal creativo. Si cierra ese ciclo arriba de $12, ahí sí reasigna sus $100 a UAEH y cierra el pendiente 4.",
+            "urgencia": "esta semana"
+          },
+          {
+            "que": "Antes de darle publicar al ciclo nuevo, revisa que el destino de mensajes esté en manual y sólo WhatsApp.",
+            "porque": "Sigue sin confirmarse desde el ciclo C (pendiente 3). Si parte de la entrega se está yendo a Messenger, una fracción de esas conversaciones nunca se atendió y el costo real por conversación útil es todavía peor que $15.06.",
+            "urgencia": "hoy"
+          }
+        ],
+        "preguntas": [
+          "Faltan los clics, CPC y CTR del lunes 24. Sin eso no puedo saber si el CTR siguió cayendo por debajo de 0.48% o si el problema de ese día fue después del clic.",
+          "¿Bajaste el presupuesto del ciclo C a $100 como quedamos ayer? El gasto de $146.22 del lunes dice que no, pero necesito confirmarlo para saber si el dato del lunes es a $130 o a $100.",
+          "¿Cuántas de las 24 conversaciones del ciclo C terminaron en venta? Sin eso no puedo decirte si $15 por conversación es caro en términos absolutos o sólo caro contra tu propio histórico.",
+          "¿El destino de mensajes del ciclo C quedó en manual sólo WhatsApp? Si estuvo en automático, parte de la caída puede ser entrega a Messenger y no agotamiento."
+        ],
+        "umbrales_sugeridos": {
+          "comentario": "Dos umbrales ya no describen lo que pasa. El de alcance hay que medirlo acumulado por creativo, no por campaña, porque reciclar la publicación reinicia los contadores de Meta pero no al público. Y el CTR mínimo está puesto tan alto que descalificaría al mejor ciclo que has tenido.",
+          "cambios": [
+            {
+              "umbral": "alcance_agotamiento",
+              "de": 20000,
+              "a": 22000,
+              "porque": "Medido acumulado sobre la misma imagen a lo largo de todos sus ciclos. Al cerrar el ciclo B esa publicación llevaba 22,273 de alcance sumado y el ciclo C arrancó ya en $15.22 el día 1. Como semáforo por campaña el umbral no sirve: A y B murieron con 11,535 y 10,738."
+            },
+            {
+              "umbral": "ctr_minimo",
+              "de": 0.8,
+              "a": 0.65,
+              "porque": "El ciclo A cerró en 0.78% y fue tu mejor ciclo, a $6.01 por conversación. Con 0.8 como mínimo lo marcarías como fallido. Los datos disponibles separan mejor en 0.65: arriba está el ciclo bueno, abajo UACH-C1 a $11.69 y el ciclo C a 0.48% y $15.06. Son sólo tres puntos, así que revísalo con el siguiente ciclo."
+            }
+          ]
+        }
+      }
     }
   ],
   "notas": []
