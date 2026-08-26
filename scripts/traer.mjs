@@ -64,23 +64,39 @@ const url = (desde, hasta) =>
   `?act=${CUENTA}&column_preset=PERFORMANCE_LEGACY` +
   `&date=${desde}_${hasta}&time_breakdown=days_1&sort=spend~0`;
 
-/* Se corre dentro de la página. Devuelve las filas de la tabla como
-   listas de celdas: el innerText suelto del body mezcla las columnas. */
-const LEER_TABLA = `(() => {
-  const filas = [...document.querySelectorAll('[role="row"]')];
-  if (!filas.length) return null;
-  return filas.map(f => [...f.querySelectorAll('[role="gridcell"],[role="cell"],[role="columnheader"]')]
-    .map(c => (c.innerText || "").replace(/\\s+/g, " ").trim()));
-})()`;
+/* La tabla de Meta no marca sus filas con role="row" —sólo el encabezado
+   lo hace; el cuerpo entero es role="presentation"—, así que no hay un
+   selector con el que agarrar una fila. Lo que sí sale ordenado y
+   completo es el innerText, y de ahí se parsea. */
+const LEER_TEXTO = `document.body ? document.body.innerText : ""`;
 
 const HAY_FILAS = `(() => {
-  const f = document.querySelectorAll('[role="row"]');
-  if (f.length < 2) return false;
-  return [...f].some(r => /\\d{4}-\\d{2}-\\d{2}/.test(r.innerText || ""));
+  const t = document.body ? document.body.innerText : "";
+  return /\\n\\d{4}-\\d{2}-\\d{2}\\n/.test(t);
 })()`;
 
-const PIDE_LOGIN = `/login|checkpoint/.test(location.href) ||
-  !!document.querySelector('input[name="pass"]')`;
+/* Facebook interrumpe de varias formas distintas, no sólo con el login:
+   al entrar al Administrador desde un perfil nuevo pide reautenticar
+   ("sensitive_action/reauth"), y a veces mete un checkpoint o un código.
+   Cada una necesita que Eder actúe en la ventana, así que se distinguen
+   para poder decirle exactamente qué le está pidiendo. */
+const QUE_PIDE = `(() => {
+  const u = location.href;
+  if (/sensitive_action|reauth/.test(u)) return "reauth";
+  if (/checkpoint/.test(u)) return "checkpoint";
+  if (/two_step|login\\/device/.test(u)) return "codigo";
+  if (/\\/login/.test(u) || document.querySelector('input[name="email"]')) return "login";
+  return null;
+})()`;
+
+const EXPLICA = {
+  login: "El Chrome de la app no tiene sesión en Facebook. Inicia sesión en esa ventana y vuelve a intentar.",
+  reauth: "Facebook está pidiendo que confirmes tu contraseña para entrar al Administrador de Anuncios: es el paso extra que pide la primera vez desde un navegador nuevo. Complétalo en la ventana que se abrió y vuelve a intentar.",
+  checkpoint: "Facebook puso un punto de verificación en la cuenta. Resuélvelo en la ventana que se abrió y vuelve a intentar.",
+  codigo: "Facebook está pidiendo el código de verificación en dos pasos. Métele el código en la ventana que se abrió y vuelve a intentar."
+};
+
+const money = (v) => (v == null ? "—" : "$" + v.toFixed(2));
 
 const aNumero = (s) => {
   if (!s) return null;
@@ -89,44 +105,75 @@ const aNumero = (s) => {
   return Number.isFinite(n) ? n : null;
 };
 
-/* De la matriz de celdas saca las filas con fecha. El orden de columnas
-   es el del preset "Rendimiento y clics"; se localiza por forma, no por
-   índice fijo, porque Meta mueve las columnas entre vistas. */
-export function parsearFilas(tabla) {
+/* Cada fila de día en el innerText tiene siempre la misma forma:
+
+     2026-08-22
+     7 días tras clic o 1 días tras visualización     <- o "-"
+     Todas las conversiones
+     4          <- conversaciones ("—" cuando son cero)
+     2,319      <- alcance
+     1.20       <- frecuencia
+     $15.22     <- costo por conversación ("—" si no hubo)
+     $60.86     <- gasto
+
+   El ancla es "Todas las conversiones": después vienen exactamente
+   cinco valores, en ese orden. Las líneas de campaña se reconocen
+   por empezar con «Publicación:» y traen su estado en la siguiente,
+   lo que sirve para desambiguar campañas del mismo nombre. */
+export function parsearFilas(texto) {
+  const lin = String(texto || "").split("\n").map((l) => l.trim());
   const salida = [];
-  let campanaActual = null;
+  let campana = null, estado = null;
 
-  for (const celdas of tabla) {
-    const texto = celdas.join(" | ");
-    const fecha = celdas.find((c) => /^\d{4}-\d{2}-\d{2}$/.test(c));
-
-    if (!fecha) {
-      const nom = celdas.find((c) => /^Publicación:|^Campaña/.test(c));
-      if (nom) campanaActual = nom;
+  for (let i = 0; i < lin.length; i++) {
+    if (/^(Publicación:|Campaña de)/.test(lin[i])) {
+      campana = lin[i];
+      estado = lin[i + 1] || null;
       continue;
     }
-    /* Números de la fila, en el orden en el que aparecen:
-       conversaciones, alcance, frecuencia, costo, gasto. */
-    const nums = celdas
-      .filter((c) => c !== fecha && /\d/.test(c) && !/tras clic|conversion|Todas las/i.test(c))
-      .map((c) => ({ txt: c, val: aNumero(c), money: c.includes("$"), pct: c.includes("%") }));
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(lin[i])) continue;
 
-    const simples = nums.filter((n) => !n.money && !n.pct && n.val != null);
-    const dinero = nums.filter((n) => n.money && n.val != null);
-    if (simples.length < 2 || !dinero.length) continue;
+    const anclaIdx = lin.indexOf("Todas las conversiones", i);
+    if (anclaIdx === -1 || anclaIdx > i + 3) continue;
+    const v = lin.slice(anclaIdx + 1, anclaIdx + 6);
+    if (v.length < 5) continue;
+
+    const gasto = aNumero(v[4]);
+    if (gasto == null) continue;
 
     salida.push({
-      fecha,
-      campana_texto: campanaActual,
-      conv: simples[0].val,
-      alcance: simples[1].val,
-      frec: simples[2]?.val ?? null,
-      costo: dinero[0]?.val ?? null,
-      gasto: dinero[dinero.length - 1]?.val ?? null,
-      _crudo: texto
+      fecha: lin[i],
+      campana_texto: campana,
+      estado_texto: estado,
+      conv: aNumero(v[0]) ?? 0,
+      alcance: aNumero(v[1]),
+      frec: aNumero(v[2]),
+      costo: aNumero(v[3]),
+      gasto
     });
+    i = anclaIdx + 5;
   }
   return salida;
+}
+
+/* Tres campañas comparten el nombre «¡NO TE QUEDES FUERA! ¡COMIENZA A
+   PREPARARTE!», así que el nombre no basta. Lo que sí distingue es la
+   fecha: cada campaña tiene su ventana y no se traslapan. */
+function asignarCampana(fila, campanas) {
+  const porNombre = campanas.filter(
+    (c) => fila.campana_texto && fila.campana_texto.includes(c.nombre)
+  );
+  if (porNombre.length === 1) return porNombre[0];
+  if (!porNombre.length) return null;
+
+  const dentro = porNombre.filter(
+    (c) => c.inicio && fila.fecha >= c.inicio && (!c.fin || fila.fecha <= c.fin)
+  );
+  if (dentro.length === 1) return dentro[0];
+
+  /* Última red: una campaña abierta (sin fecha de fin) que ya empezó. */
+  const abiertas = porNombre.filter((c) => c.inicio && !c.fin && fila.fecha >= c.inicio);
+  return abiertas.length === 1 ? abiertas[0] : null;
 }
 
 /* ---------------- flujo principal ---------------- */
@@ -148,34 +195,25 @@ export async function traer({ desde, hasta, visible = true, log = console.log } 
     await p.ir(url(desde, hasta));
     await dormir(4000);
 
-    if (await p.evaluar(PIDE_LOGIN)) {
-      return { necesita_login: true, mensaje: "El Chrome de la app no tiene sesión en Facebook. Ábrelo con el botón de iniciar sesión, entra a tu cuenta y vuelve a intentar." };
-    }
+    const pide = await p.evaluar(QUE_PIDE);
+    if (pide) return { necesita_login: true, pide, mensaje: EXPLICA[pide] };
 
     const cargo = await p.esperarA(HAY_FILAS, { intentos: 40, cada: 1500 });
     if (!cargo) {
       return { error: "La tabla de Meta no terminó de cargar. Suele pasar con rangos largos: intenta con menos días." };
     }
 
-    const tabla = await p.evaluar(LEER_TABLA);
-    const filas = parsearFilas(tabla || []);
+    const filas = parsearFilas(await p.evaluar(LEER_TEXTO));
     log(`Leí ${filas.length} fila(s) con fecha.`);
 
-    /* Sólo se guardan los días que no estaban. Emparejar la campaña
-       por nombre no sirve —hay tres con el mismo— así que se usa la
-       campaña activa cuando el nombre no desambigua. */
+    /* Sólo se guardan los días que no estaban. */
     const yaHay = new Set(DATOS.dias.map((d) => d.fecha + "|" + d.campana));
-    const activa = DATOS.campanas.find((c) => c.estado === "Activa");
     const agregados = [];
     const ambiguas = [];
 
     for (const f of filas) {
       if (f.fecha < desde || f.fecha > hasta) continue;
-      const candidatas = DATOS.campanas.filter(
-        (c) => f.campana_texto && f.campana_texto.includes(c.nombre)
-      );
-      const camp = candidatas.length === 1 ? candidatas[0]
-                 : candidatas.find((c) => c.estado === "Activa") || (candidatas.length ? null : activa);
+      const camp = asignarCampana(f, DATOS.campanas);
       if (!camp) { ambiguas.push(f); continue; }
       const clave = f.fecha + "|" + camp.id;
       if (yaHay.has(clave)) continue;
@@ -215,7 +253,12 @@ export async function traer({ desde, hasta, visible = true, log = console.log } 
 
     return {
       agregados,
-      ambiguas: ambiguas.map((a) => a.fecha + " · " + (a.campana_texto || "sin campaña")),
+      /* Filas reales que no se pudieron atribuir: casi siempre una campaña
+         nueva que todavía no está dada de alta en pautas.js. Se reportan
+         en vez de adivinar a cuál pertenecen. */
+      ambiguas: ambiguas.map(
+        (a) => `${a.fecha} · ${a.campana_texto || "sin campaña"} (${a.estado_texto || "?"}) · ` +
+               `${a.conv} conv, ${money(a.gasto)}`),
       mensaje: agregados.length
         ? `Agregué ${agregados.length} registro(s): ${[...new Set(agregados.map((a) => a.fecha))].join(", ")}.`
         : "Meta no reportó días nuevos en ese rango."
